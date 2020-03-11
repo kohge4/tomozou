@@ -1,0 +1,118 @@
+package handler
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/dghubble/go-twitter/twitter"
+	"github.com/dghubble/oauth1"
+	twauth "github.com/dghubble/oauth1/twitter"
+	"github.com/gin-gonic/contrib/sessions"
+
+	"tomozou/infra/datastore"
+)
+
+const redirectTwitterURL = "http://localhost:8000/twitter/callback"
+
+var config = oauth1.Config{
+	ConsumerKey:    "2U9Fsq4hNOkL9S6dy7awyKrSk",
+	ConsumerSecret: "KbQ6tKJM39HXtD2UptXnAvFpWewFW7WVpTcCP0MJVPkhIJZHTN",
+	Endpoint:       twauth.AuthorizeEndpoint,
+	//CallbackURL:    "http://localhost:8080/twitter/callback",
+}
+
+func NewTwitterHandler() *TwitterHandler {
+	return &TwitterHandler{}
+}
+
+type TwitterHandler struct {
+	ClientID    string
+	SecretKey   string
+	RedirectURL string
+	State       string
+
+	//Authenticator spotify.Authenticator
+	Client      *twitter.Client
+	OAuthSecret string
+}
+
+func (h *TwitterHandler) Login(c *gin.Context) {
+	session := sessions.Default(c)
+	accessToken := session.Get("access_token")
+	accessSecret := session.Get("access_secret")
+	if accessToken == nil || accessSecret == nil {
+		requestToken, requestSecret, _ := config.RequestToken()
+		// 保存先の session が どこやねん問題 => 多分直接繊維じゃないと request secret の 状態が保持できてない感ある
+		// 0309 ブラウザから　これを叩かないとうまくいかなかった cookie 保存できてない
+		session.Set("request_secret", requestSecret)
+		session.Save()
+		// 上のが失敗するから
+		h.OAuthSecret = requestSecret
+		c.JSON(http.StatusOK, Response{200, "https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken})
+		// client に accesstoken を set すれば良さげ
+
+	} else {
+		// 上のがいるかは謎
+		/*
+			config := oauth1.NewConfig("2U9Fsq4hNOkL9S6dy7awyKrSk", "KbQ6tKJM39HXtD2UptXnAvFpWewFW7WVpTcCP0MJVPkhIJZHTN")
+			// session の accesstoken と accesssecret を使ってどう するの
+
+			token := oauth1.NewToken(accessToken.(string), accessSecret.(string))
+			httpClient := config.Client(oauth1.NoContext, token)
+			twitterClient := twitter.NewClient(httpClient)
+			h.Client = twitterClient
+		*/
+		c.JSON(http.StatusOK, Response{200, "session check => Login "})
+	}
+}
+
+// front からこの処理を呼ぶことになる　多分. twitterservice からの リダイレクトは front になる
+func (h *TwitterHandler) Callback(c *gin.Context) {
+	oauthToken := c.Query("oauth_token")
+	oauthVerifier := c.Query("oauth_verifier")
+	session := sessions.Default(c)
+	fmt.Println(session.Get("requesr_secret"))
+	// ここが nil に なるのが問題
+	//requestSecret := session.Get("request_secret").(string)
+	requestSecret := h.OAuthSecret
+	accessToken, accessSecret, _ := config.AccessToken(oauthToken, requestSecret, oauthVerifier)
+	session.Set("access_token", accessToken)
+	session.Set("access_secret", accessSecret)
+	session.Save()
+	// callback url を me で統一して, me 以下を ログインしないと見れないコンテンツにする方針良さげ
+	c.JSON(http.StatusOK, Response{200, "http://localhost:8080/twitter/me"})
+}
+
+func (h *TwitterHandler) Me(c *gin.Context) {
+	h.checkAuth(c)
+	tParam := &twitter.AccountVerifyParams{}
+	Me, _, _ := h.Client.Accounts.VerifyCredentials(tParam)
+	//c.JSON(200, Me)
+
+	userRepo := datastore.NewUserDBRepository()
+	user := datastore.User{
+		SocialID: Me.IDStr,
+		Name:     Me.ScreenName,
+		Auth:     "ok",
+		Image:    Me.ProfileImageURLHttps,
+	}
+	userRepo.Save(user)
+	users := userRepo.ReadAll()
+	fmt.Println(users)
+	c.JSON(200, user)
+}
+
+func (h *TwitterHandler) checkAuth(c *gin.Context) {
+	session := sessions.Default(c)
+	accessToken := session.Get("access_token")
+	accessSecret := session.Get("access_secret")
+
+	config := oauth1.NewConfig("2U9Fsq4hNOkL9S6dy7awyKrSk", "KbQ6tKJM39HXtD2UptXnAvFpWewFW7WVpTcCP0MJVPkhIJZHTN")
+	// session の accesstoken と accesssecret を使ってどう するの
+	token := oauth1.NewToken(accessToken.(string), accessSecret.(string))
+	httpClient := config.Client(oauth1.NoContext, token)
+	twitterClient := twitter.NewClient(httpClient)
+	h.Client = twitterClient
+}
