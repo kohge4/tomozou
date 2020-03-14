@@ -68,6 +68,11 @@ func (h *TwitterHandler) Login(c *gin.Context) {
 	}
 }
 
+/*
+
+JWT を保存するのは Callback !!!
+
+*/
 // front からこの処理を呼ぶことになる　多分. twitterservice からの リダイレクトは front になる
 func (h *TwitterHandler) Callback(c *gin.Context) {
 	oauthToken := c.Query("oauth_token")
@@ -81,6 +86,7 @@ func (h *TwitterHandler) Callback(c *gin.Context) {
 	session.Set("access_token", accessToken)
 	session.Set("access_secret", accessSecret)
 	session.Save()
+	// JWT 作成の 関数を挟む　＝＞ レスポンせで挟む　（front が JWT を保存しておく）
 	// callback url を me で統一して, me 以下を ログインしないと見れないコンテンツにする方針良さげ
 	c.JSON(http.StatusOK, Response{200, "http://localhost:8080/twitter/me"})
 }

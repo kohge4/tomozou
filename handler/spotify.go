@@ -26,6 +26,7 @@ type SpotifyHandler struct {
 
 	Authenticator spotify.Authenticator
 	Client        spotify.Client
+	// UserDBRepo を　追加したほうがいい
 }
 
 func NewSpotifyHandler() *SpotifyHandler {
@@ -60,6 +61,29 @@ func (h *SpotifyHandler) Callback(c *gin.Context) {
 	//c.SetCookie("spotify-token", token.AccessRoken, )
 	h.Client = h.Authenticator.NewClient(token)
 	//c.Redirect(http.StatusTemporaryRedirect, "/spotify/me")
+	Me, err := h.Client.CurrentUser()
+	if err != nil {
+		c.String(200, err.Error())
+	}
+	c.JSON(200, Me)
+	fmt.Println("okok")
+	//DB に なければ保存する処理？, 毎回 p路フィールで呼ぶのめんどいからよくないかも
+	// 最初に ログインしてるなら 云々で処理した方がいいかも
+	// cookie に保存する感じな気がする accesstoken を
+	userRepo := datastore.NewUserSpotifyDBRepository()
+	userS := datastore.UserSpotify{
+		UserID:       "dou",
+		SocialID:     Me.ID,
+		UserName:     Me.DisplayName,
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	}
+	userRepo.Save(userS)
+	fmt.Println("Spotify Login Result and Token")
+	fmt.Println(userS)
+	fmt.Println(token.AccessToken)
+	//userSRepo := datastore.NewUserSpotifyDBRepository()
+
 	c.JSON(200, Response{200, "http://localhost:8080/spotify/me"})
 }
 
@@ -75,13 +99,15 @@ func (h *SpotifyHandler) Me(c *gin.Context) {
 	//DB に なければ保存する処理？, 毎回 p路フィールで呼ぶのめんどいからよくないかも
 	// 最初に ログインしてるなら 云々で処理した方がいいかも
 	// cookie に保存する感じな気がする accesstoken を
-	userRepo := datastore.NewUserDBRepository()
-	user := datastore.User{
-		SocialID: Me.ID,
-		Name:     Me.DisplayName,
-		Auth:     "ok",
-	}
-	userRepo.Save(user)
-	users := userRepo.ReadAll()
-	fmt.Println(users)
+	/*
+		userRepo := datastore.NewUserDBRepository()
+		user := datastore.User{
+			SocialID: Me.ID,
+			Name:     Me.DisplayName,
+			Auth:     "ok",
+		}
+		userRepo.Save(user)
+		users := userRepo.ReadAll()
+		fmt.Println(users)
+	*/
 }

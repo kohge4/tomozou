@@ -14,6 +14,7 @@ import (
 	twauth "github.com/dghubble/oauth1/twitter"
 
 	"tomozou/handler"
+	"tomozou/infra/authenticator"
 )
 
 const (
@@ -81,7 +82,7 @@ func main() {
 	//r.LoadHTMLGlob("presentation/views/*")
 
 	crs := cors.DefaultConfig()
-	crs.AllowOrigins = []string{"http://localhost:8080"}
+	crs.AllowOrigins = []string{"http://localhost:8080", "https://tomozoufront.firebaseapp.com"}
 	r.Use(cors.New(crs))
 
 	store := sessions.NewCookieStore([]byte("okokokokoko"))
@@ -92,27 +93,42 @@ func main() {
 	r.GET("/twi", func(c *gin.Context) {
 		c.JSON(200, result)
 	})
-
 	r.GET("/twcallback", func(c *gin.Context) {
 		// callback 用の URL( "承認しますか" の 後の URL)
 		c.JSON(200, result)
 	})
 
 	r.GET("/spotify/callback", spotifyHandler.Callback)
-
 	r.GET("/spotify/login", spotifyHandler.Login)
-
 	r.GET("/spotify/top", func(c *gin.Context) {
 		c.String(200, "OkSpotify")
 	})
-
 	r.GET("/spotify/me", spotifyHandler.Me)
 
 	r.GET("/twitter/callback", twitterHandler.Callback)
-
 	r.POST("/twitter/login", twitterHandler.Login)
-
 	r.GET("/twitter/me", twitterHandler.Me)
+
+	userCtrl := handler.NewUserController()
+	r.GET("/profile/user", userCtrl.GetUser)
+
+	// Login 関連 JWT
+
+	authMiddleware := authenticator.Auth()
+
+	r.GET("/cl", handler.ST)
+	r.POST("/login", authMiddleware.LoginHandler)
+	// ここでの response json は
+
+	auth := r.Group("/auth")
+	// Refresh time can be longer than token timeout
+	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
+	auth.Use(authMiddleware.MiddlewareFunc())
+	{
+		auth.GET("/hello", func(c *gin.Context) {
+			c.JSON(200, "okok")
+		})
+	}
 
 	r.Run(":8000")
 }

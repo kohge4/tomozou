@@ -7,10 +7,10 @@ type User struct {
 }
 
 type UserRepository interface {
-	Save()
-	ReadAll()
-	Raed()
-	Delete()
+	Save(User) error
+	ReadAll() error
+	//Raed()
+	//Delete()
 }
 
 type UserContent struct {

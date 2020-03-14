@@ -34,8 +34,10 @@ type User struct {
 	*/
 }
 
-func (repo *UserDBRepository) Save(user User) {
+func (repo *UserDBRepository) Save(user User) error {
+	// 本来は domain.User => infra 用の User に変換する interface を用いたい
 	repo.DB.Create(&user)
+	return nil
 }
 
 func (repo *UserDBRepository) ReadAll() []User {
