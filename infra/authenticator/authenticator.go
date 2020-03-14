@@ -17,6 +17,7 @@ var identityKey = "id"
 
 func helloHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
+	// 同一 context 内だから middleware で 作った　値がそのまま使える
 	user, _ := c.Get(identityKey)
 	c.JSON(200, gin.H{
 		"userID":   claims[identityKey],
@@ -53,6 +54,7 @@ func Auth() *jwt.GinJWTMiddleware {
 			return jwt.MapClaims{}
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
+			// jwt の claims から user name を　取ってくる
 			claims := jwt.ExtractClaims(c)
 			return &User{
 				UserName: claims[identityKey].(string),
@@ -61,21 +63,33 @@ func Auth() *jwt.GinJWTMiddleware {
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			// Accesstoken を　取ってくることに成功したら
 			// これの 戻り値　が data
-			var loginVals login
-			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
-			}
-			userID := loginVals.Username
-			password := loginVals.Password
 
-			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
-				return &User{
-					UserName:  userID,
-					LastName:  "Bo-Yi",
-					FirstName: "Wu",
-				}, nil
-			}
-			return nil, jwt.ErrFailedAuthentication
+			/*方針
+			AuthHeader を確認 => mw.TokenLookUp で いける
+			parsetoken かも
+
+			*/
+
+			/*
+					var loginVals login
+					if err := c.ShouldBind(&loginVals); err != nil {
+						return "", jwt.ErrMissingLoginValues
+					}
+					userID := loginVals.Username
+					password := loginVals.Password
+
+					if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
+						return &User{
+							UserName:  userID,
+							LastName:  "Bo-Yi",
+							FirstName: "Wu",
+						}, nil
+					}
+				return nil, jwt.ErrFailedAuthentication
+			*/
+			return &User{
+				UserName: "testdemo",
+			}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			//　得たデータを　実際に 認証する場所
@@ -91,6 +105,13 @@ func Auth() *jwt.GinJWTMiddleware {
 				"message": message,
 			})
 		},
+		/* 必要追記: IdentityHandler は Userを識別 func(c *gin.Context) の形式
+		ExtractClaims をよんでいる
+			読み込んだ payload を context."JWT_PAYLOAD" に保存しているので, それを読み込む
+
+
+		*/
+
 		// TokenLookup is a string in the form of "<source>:<name>" that is used
 		// to extract token from the request.
 		// Optional. Default value "header:Authorization".
@@ -99,6 +120,7 @@ func Auth() *jwt.GinJWTMiddleware {
 		// - "query:<name>"
 		// - "cookie:<name>"
 		// - "param:<name>"
+		// 複数の 可能性を 書いておくことができる (3 箇所のうちどこかに JWT が存在すれば良い )
 		TokenLookup: "header: Authorization, query: token, cookie: jwt",
 		// TokenLookup: "query:token",
 		// TokenLookup: "cookie:token",

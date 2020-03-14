@@ -119,12 +119,17 @@ func main() {
 	r.GET("/cl", handler.ST)
 	r.POST("/login", authMiddleware.LoginHandler)
 	// ここでの response json は
+	// 最終的に LoginResponse=func(c *ginContext) を 実行 , c.JSON(token) 的なやつ
 
 	auth := r.Group("/auth")
 	// Refresh time can be longer than token timeout
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
+		// MiddlewareFunc 以下の 関数は Authorization header がないと アクセスできないようになっている
+		// MiddlewareFunc の解析順: Jwt から claim を　取ってくる
+
+		// c.Next 以下なので c.Get("JWT_Payload") をかで 値を取ってくる方針
 		auth.GET("/hello", func(c *gin.Context) {
 			c.JSON(200, "okok")
 		})
