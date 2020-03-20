@@ -106,26 +106,13 @@ func (h *SpotifyHandler) Callback(c *gin.Context) {
 func (h *SpotifyHandler) Me(c *gin.Context) {
 	//fmt.Printf("%T \n", h.Client)
 	//認証が住んでないとページに飛べない ==> 何かしらの 前処理ほしい（error 的なの呼べるようにしたい）
+	// endpoint /me
 	Me, err := h.Client.CurrentUser()
 	if err != nil {
 		c.String(200, err.Error())
 	}
 	c.JSON(200, Me)
 	fmt.Println("okok")
-	//DB に なければ保存する処理？, 毎回 p路フィールで呼ぶのめんどいからよくないかも
-	// 最初に ログインしてるなら 云々で処理した方がいいかも
-	// cookie に保存する感じな気がする accesstoken を
-	/*
-		userRepo := datastore.NewUserDBRepository()
-		user := datastore.User{
-			SocialID: Me.ID,
-			Name:     Me.DisplayName,
-			Auth:     "ok",
-		}
-		userRepo.Save(user)
-		users := userRepo.ReadAll()
-		fmt.Println(users)
-	*/
 }
 
 func (h *SpotifyHandler) MeData(c *gin.Context) {

@@ -48,8 +48,14 @@ func AuthUser() *jwt.GinJWTMiddleware {
 			return claims[identityKey]
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			fmt.Println("PPP")
-			return &User{"test", "spotify", 12}, nil
+			userID, _ := c.Get("tomozou-id")
+			id, ok := userID.(int)
+			fmt.Println(id)
+			println(ok)
+			if ok == false {
+				return nil, nil
+			}
+			return &User{"test", "spotify", id}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			//　得たデータを　実際に 認証する場所
@@ -58,7 +64,6 @@ func AuthUser() *jwt.GinJWTMiddleware {
 				if v, ok := data.(*User); ok && v.UserName == "admin" {
 					return true
 				}*/
-			fmt.Println("QQQ")
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
@@ -68,10 +73,14 @@ func AuthUser() *jwt.GinJWTMiddleware {
 			})
 		},
 		LoginResponse: func(c *gin.Context, code int, token string, expire time.Time) {
+			/* httprequest の token をひっぱてくるコード
+			 => よって ここでは nil
 			claims := jwt.ExtractClaims(c)
 			c.Set(identityKey, claims[identityKey])
 			id, _ := c.Get(identityKey)
-			fmt.Println(claims)
+			*/
+			fmt.Println(token)
+			id, _ := c.Get("tomozou-id")
 
 			tomozouID, _ := c.Get("tomozou-id")
 			c.JSON(http.StatusOK, gin.H{
@@ -144,17 +153,19 @@ func (h SpotifyHandler) SignUp(c *gin.Context) {
 		SocialID: Me.ID,
 		Name:     Me.DisplayName,
 		Auth:     "spotify",
-		Image:    "",
+		Image:    Me.Images[0].URL,
 	}
 
 	tomozouUserRepo.Save(tomozouUser)
 	uS := tomozouUserRepo.ReadBySocialID(Me.ID)
-	c.Set("tomozou-id", uS[0].ID)
+	c.Set("tomozou-id", uS[len(uS)-1].ID)
 	fmt.Println("UserData")
 	fmt.Println(uS)
+	fmt.Println(uS[len(uS)-1].ID)
+	test, _ := c.Get("tomozou-id")
+	fmt.Println(test)
 
 	userAuthenticator.LoginHandler(c)
-
 }
 
 func (h SpotifyHandler) SignIn(c *gin.Context) {

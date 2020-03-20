@@ -84,8 +84,14 @@ func Auth() *jwt.GinJWTMiddleware {
 					UserID:      userIDInt,
 				}, nil
 			*/
-			fmt.Println("PPP")
-			return &User{"test", "spotify", 12}, nil
+			userID, _ := c.Get("tomozou-id")
+			id, ok := userID.(int)
+			fmt.Println(id)
+			println(ok)
+			if ok == false {
+				return nil, nil
+			}
+			return &User{"test", "spotify", id}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			//　得たデータを　実際に 認証する場所
@@ -94,7 +100,6 @@ func Auth() *jwt.GinJWTMiddleware {
 				if v, ok := data.(*User); ok && v.UserName == "admin" {
 					return true
 				}*/
-			fmt.Println("QQQ")
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
@@ -107,13 +112,13 @@ func Auth() *jwt.GinJWTMiddleware {
 			claims := jwt.ExtractClaims(c)
 			c.Set(identityKey, claims[identityKey])
 			id, _ := c.Get(identityKey)
-			fmt.Println(claims)
 			c.JSON(http.StatusOK, gin.H{
 				"code":   http.StatusOK,
 				"token":  token,
 				"expire": expire.Format(time.RFC3339),
 				"ID":     id,
 			})
+
 		},
 		/* 必要追記: IdentityHandler は Userを識別 func(c *gin.Context) の形式
 		ExtractClaims をよんでいる
