@@ -98,12 +98,20 @@ func main() {
 		c.JSON(200, result)
 	})
 
-	r.GET("/spotify/callback", spotifyHandler.Callback)
+	r.GET("/spotify/callback", spotifyHandler.SignUp)
 	r.GET("/spotify/login", spotifyHandler.Login)
 	r.GET("/spotify/top", func(c *gin.Context) {
 		c.String(200, "OkSpotify")
 	})
 	r.GET("/spotify/me", spotifyHandler.Me)
+	r.GET("/spotify/currme", spotifyHandler.MeData)
+	r.GET("/spotify/metrack", spotifyHandler.MeTrack)
+	r.GET("/spotify/token", spotifyHandler.GetAccessToken)
+	r.GET("/spotify/meplaylist", spotifyHandler.MePlaylists)
+	r.GET("/spotify/meartists", spotifyHandler.MeArtists)
+	r.GET("/spotify/menowplaying", spotifyHandler.MeNowPlaying)
+	r.GET("/spotify/merecentlyplaying", spotifyHandler.MeRecentlyPlaying)
+	r.GET("/spotify/currentuseralubums", spotifyHandler.CurrentUsersAlbums)
 
 	r.GET("/twitter/callback", twitterHandler.Callback)
 	r.POST("/twitter/login", twitterHandler.Login)
@@ -128,44 +136,12 @@ func main() {
 	{
 		// MiddlewareFunc 以下の 関数は Authorization header がないと アクセスできないようになっている
 		// MiddlewareFunc の解析順: Jwt から claim を　取ってくる
-
 		// c.Next 以下なので c.Get("JWT_Payload") をかで 値を取ってくる方針
 		auth.GET("/hello", func(c *gin.Context) {
-			c.JSON(200, "okok")
+			data, _ := c.Get("id")
+			c.JSON(200, data)
 		})
 	}
 
 	r.Run(":8000")
-}
-
-func login() (requestToken string, err error) {
-	requestToken, _, err = config.RequestToken()
-	if err != nil {
-		return "", err
-	}
-	authorizationURL, err := config.AuthorizationURL(requestToken)
-	if err != nil {
-		return "", err
-	}
-	fmt.Printf("Open this URL in your browser:\n%s\n", authorizationURL.String())
-	return requestToken, err
-}
-
-func receivePIN(requestToken string) (*oauth1.Token, error) {
-	fmt.Printf("Paste your PIN here: ")
-	var verifier string
-	_, err := fmt.Scanf("%s", &verifier)
-	if err != nil {
-		return nil, err
-	}
-	// Twitter ignores the oauth_signature on the access token request. The user
-	// to which the request (temporary) token corresponds is already known on the
-	// server. The request for a request token earlier was validated signed by
-	// the consumer. Consumer applications can avoid keeping request token state
-	// between authorization granting and callback handling.
-	accessToken, accessSecret, err := config.AccessToken(requestToken, "secret does not matter", verifier)
-	if err != nil {
-		return nil, err
-	}
-	return oauth1.NewToken(accessToken, accessSecret), err
 }

@@ -1,34 +1,15 @@
-package authenticator
+package handler
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 	"time"
-
-	"tomozou/handler"
+	"tomozou/infra/datastore"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
-
-type login struct {
-	Username string `form:"username" json:"username" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
-}
-
-var identityKey = "id"
-
-func helloHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	// 同一 context 内だから middleware で 作った　値がそのまま使える
-	user, _ := c.Get(identityKey)
-	c.JSON(200, gin.H{
-		"userID":   claims[identityKey],
-		"userName": user.(*User).UserName,
-		"text":     "Hello World.",
-	})
-}
 
 // User demo
 type User struct {
@@ -37,24 +18,24 @@ type User struct {
 	UserID      int
 }
 
-var spotifyHandler = handler.NewSpotifyHandler()
+const identityKey = "userid"
 
-func Auth() *jwt.GinJWTMiddleware {
+func AuthUser() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
-		IdentityKey: identityKey,
+		IdentityKey: "userid",
 		// オリジナルで追加.... scope や permission を　追加したい
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*User); ok {
 				return jwt.MapClaims{
-					identityKey: v.UserID,
-					"id":        v.UserID,
-					"name":      v.UserName,
-					"scope":     []string{v.AccountType},
-					"login":     v.AccountType,
+					"userid": v.UserID,
+					"id":     v.UserID,
+					"name":   v.UserName,
+					"scope":  []string{v.AccountType},
+					"login":  v.AccountType,
 				}
 			}
 			return jwt.MapClaims{}
@@ -67,23 +48,6 @@ func Auth() *jwt.GinJWTMiddleware {
 			return claims[identityKey]
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			/*
-				account, ok := c.Get("social-account")
-				if ok == false {
-					return nil, jwt.ErrFailedAuthentication
-				}
-				accountString := account.(string)
-				userID, ok := c.Get("userid")
-				if ok == false {
-					return nil, jwt.ErrFailedAuthentication
-				}
-				userIDInt := userID.(int)
-				return &User{
-					UserName:    "test",
-					AccountType: accountString,
-					UserID:      userIDInt,
-				}, nil
-			*/
 			fmt.Println("PPP")
 			return &User{"test", "spotify", 12}, nil
 		},
@@ -108,29 +72,17 @@ func Auth() *jwt.GinJWTMiddleware {
 			c.Set(identityKey, claims[identityKey])
 			id, _ := c.Get(identityKey)
 			fmt.Println(claims)
+
+			tomozouID, _ := c.Get("tomozou-id")
 			c.JSON(http.StatusOK, gin.H{
-				"code":   http.StatusOK,
-				"token":  token,
-				"expire": expire.Format(time.RFC3339),
-				"ID":     id,
+				"code":       http.StatusOK,
+				"token":      token,
+				"expire":     expire.Format(time.RFC3339),
+				"ID":         id,
+				"tomozou-id": tomozouID,
 			})
 		},
-		/* 必要追記: IdentityHandler は Userを識別 func(c *gin.Context) の形式
-		ExtractClaims をよんでいる
-			読み込んだ payload を context."JWT_PAYLOAD" に保存しているので, それを読み込む
 
-
-		*/
-
-		// TokenLookup is a string in the form of "<source>:<name>" that is used
-		// to extract token from the request.
-		// Optional. Default value "header:Authorization".
-		// Possible values:
-		// - "header:<name>"
-		// - "query:<name>"
-		// - "cookie:<name>"
-		// - "param:<name>"
-		// 複数の 可能性を 書いておくことができる (3 箇所のうちどこかに JWT が存在すれば良い )
 		TokenLookup: "header: Authorization, query: token, cookie: jwt",
 		// TokenLookup: "query:token",
 		// TokenLookup: "cookie:token",
@@ -146,4 +98,65 @@ func Auth() *jwt.GinJWTMiddleware {
 	}
 
 	return authMiddleware
+}
+
+var userAuthenticator = AuthUser()
+
+func (h SpotifyHandler) SignUp(c *gin.Context) {
+	// front からの url の prams を使って requets を使うのがベスト？
+	token, err := h.Authenticator.Token(h.State, c.Request)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	//fmt.Println(token)
+	//c.SetCookie("spotify-token", token.AccessRoken, )
+	h.Client = h.Authenticator.NewClient(token)
+	//c.Redirect(http.StatusTemporaryRedirect, "/spotify/me")
+	Me, err := h.Client.CurrentUser()
+	if err != nil {
+		c.String(200, err.Error())
+	}
+
+	userRepo := datastore.NewUserSpotifyDBRepository()
+	userS := datastore.UserSpotify{
+		UserID:       "dou",
+		SocialID:     Me.ID,
+		UserName:     Me.DisplayName,
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+	}
+
+	// UserDB から すでに 使用した ID かをチェックする関数欲しいね
+
+	//userToken := datastore.UserToken{}
+	userRepo.Save(userS)
+	fmt.Println("Spotify Login Result and Token")
+	fmt.Println(userS)
+	fmt.Println(token.AccessToken)
+	//userSRepo := datastore.NewUserSpotifyDBRepository()
+
+	//c.JSON(200, Response{200, "http://localhost:8080/spotify/me"})
+
+	tomozouUserRepo := datastore.NewUserDBRepository()
+
+	tomozouUser := datastore.User{
+		SocialID: Me.ID,
+		Name:     Me.DisplayName,
+		Auth:     "spotify",
+		Image:    "",
+	}
+
+	tomozouUserRepo.Save(tomozouUser)
+	uS := tomozouUserRepo.ReadBySocialID(Me.ID)
+	c.Set("tomozou-id", uS[0].ID)
+	fmt.Println("UserData")
+	fmt.Println(uS)
+
+	userAuthenticator.LoginHandler(c)
+
+}
+
+func (h SpotifyHandler) SignIn(c *gin.Context) {
+	fmt.Println(userAuthenticator)
 }

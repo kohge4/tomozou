@@ -34,16 +34,27 @@ type User struct {
 	*/
 }
 
-func (repo *UserDBRepository) Save(user User) error {
+func (repo *UserDBRepository) Save(user User) {
 	// 本来は domain.User => infra 用の User に変換する interface を用いたい
 	repo.DB.Create(&user)
-	return nil
 }
 
 func (repo *UserDBRepository) ReadAll() []User {
 	users := []User{}
 	repo.DB.Find(&users)
 	return users
+}
+
+func (repo *UserDBRepository) ReadBySocialID(socialID string) []User {
+	users := []User{}
+	repo.DB.Where("social_id = ?", socialID).Find(&users)
+	return users
+}
+
+func (repo *UserDBRepository) ReadByID(ID int) User {
+	user := User{}
+	repo.DB.Where("ID = ?", ID).Find(&user)
+	return user
 }
 
 //func (repo *UserDBRepository) Read

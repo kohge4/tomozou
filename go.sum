@@ -63,6 +63,10 @@ github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkr
 github.com/jinzhu/now v1.0.1/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
 github.com/json-iterator/go v1.1.7/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
+github.com/kohge4/spotify v0.0.0-20200315093432-085f81fdcc3a h1:kWT5MFux35y3KIy5U+KLJg2zYKZzQ359lRViHkvZPIk=
+github.com/kohge4/spotify v0.0.0-20200315093432-085f81fdcc3a/go.mod h1:iPKgBs5p28+7qwP73Ln9d03gySf8zyqxZeVvNbWeoTw=
+github.com/kohge4/spotify v0.0.0-20200317133426-71362aa37f2e h1:zolQO6flCdxgjq3kBIx586E8X4HUKuVvtNQGkuY3BuU=
+github.com/kohge4/spotify v0.0.0-20200317133426-71362aa37f2e/go.mod h1:iPKgBs5p28+7qwP73Ln9d03gySf8zyqxZeVvNbWeoTw=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=

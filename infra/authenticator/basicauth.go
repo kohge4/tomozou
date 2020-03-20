@@ -16,9 +16,7 @@ func BasicAuth(c *gin.Context) (interface{}, error) {
 
 	if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
 		return &User{
-			UserName:  userID,
-			LastName:  "Bo-Yi",
-			FirstName: "Wu",
+			UserName: userID,
 		}, nil
 	}
 	return nil, jwt.ErrFailedAuthentication

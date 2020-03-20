@@ -1,4 +1,6 @@
-package usecase 
+package usecase
+
+import "tomozou/domain"
 
 /*
 
@@ -17,6 +19,5 @@ package usecase
 */
 
 type Authenticator struct {
-	SocialService domain.SocialAccount 
+	SocialService domain.SocialAccount
 }
-

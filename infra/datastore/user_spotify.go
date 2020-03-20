@@ -1,6 +1,10 @@
 package datastore
 
-import "github.com/jinzhu/gorm"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 // spotify に 関する user の 情報を 表示
 
@@ -39,4 +43,33 @@ func (repo *UserSpotifyDBRepository) ReadAll() []UserSpotify {
 	users := []UserSpotify{}
 	repo.DB.Find(&users)
 	return users
+}
+
+type UserSpotifyPlaylist struct {
+	ID          int
+	UserID      string
+	PlaylistURL string
+	Comment     string
+}
+
+type UserSpotifyArtist struct {
+	UserID    string
+	CreatedAt time.Time
+	//Timerange string
+	// short か long か
+	ArtistType string
+
+	SpArtistID    string
+	SpMusicURL    string
+	SpArtistImage string
+}
+
+type UserSpotifyTrack struct {
+	UserID    string
+	CreatedAt time.Time
+	TrackType string
+	// Nowplaying か何か
+	SpTrackID    string
+	SpTrackURL   string
+	SpTrackImage string
 }

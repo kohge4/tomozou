@@ -1,8 +1,0 @@
-todo
-   0. go-twitter の 使い方, twitter api の 仕様を把握する
-   0. spotify api の 使い方, 仕様を把握する
-   1.  main() に twitter を OAuth認証して　User 情報, follow 機能等を表示できる機能を作る(twitter api に　まずなれる)
-   2.  main() で 1 を利用して, user を繋げる仕組みを作る
-   3.  プロジェクト分割する(抽象化とか意識))
-   4. DB 設計 (できたら)
-   5. applemusic とか, amazon とか 他のサービスで使えるか試す

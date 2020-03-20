@@ -14,6 +14,7 @@ require (
 	github.com/gomodule/oauth1 v0.0.0-20181215000758-9a59ed3b0a84
 	github.com/gorilla/sessions v1.2.0
 	github.com/jinzhu/gorm v1.9.12
+	github.com/kohge4/spotify v0.0.0-20200317133426-71362aa37f2e
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible
 	github.com/zmb3/spotify v0.0.0-20200112163645-71a4c67d18db
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
