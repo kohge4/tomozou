@@ -6,13 +6,13 @@ type SocialService struct {
 }
 
 type SocialAccount interface {
-	ToUser() (User, error)
+	User() (User, error)
 	Content() (SocialAccountContent, error)
 
-	SignIn()
-	SignUp()
+	SignIn() error
+	SignUp() error
 	SignOut(User) error
-	DeleteUser(User) error
+	//DeleteUser(User) error
 }
 
 type SocialAccountContent interface {
@@ -22,3 +22,5 @@ type SocialAccountContent interface {
 	//Delete()
 	ToUserContent() (UserContent, error)
 }
+
+type SocialAccountRepository interface{}

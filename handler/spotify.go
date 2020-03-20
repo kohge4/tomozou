@@ -33,6 +33,8 @@ type SpotifyHandler struct {
 	Client        spotify.Client
 	Repository    *gorm.DB
 	// UserDBRepo を　追加したほうがいい
+	UserRepository    datastore.UserDBRepository
+	SpotifyRepository datastore.SpotifyDBRepository
 }
 
 func NewSpotifyHandler() *SpotifyHandler {

@@ -1,15 +1,16 @@
 package usecase
 
-import "tomozou/domain"
-
+/*
 type UserApplication struct {
 	UserRepository domain.UserRepository
 	Authenticator  string
 	SocialAccount  SocialAccount
 }
+*/
 
 //func ()
 
+/*
 type SocialAccount interface {
 	// controller とかで UserRepository の DB を参照渡しで受け取るといいかも
 	SaveUserData() error
@@ -20,3 +21,4 @@ func (u *UserApplication) SaveSocialAccountUserData() error {
 	u.SocialAccount.SaveUserData()
 	return nil
 }
+*/

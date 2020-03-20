@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kohge4/spotify"
 )
 
 func (h *SpotifyHandler) SaveUserSpotifyDataLogin(c *gin.Context) {
@@ -15,12 +16,57 @@ func (h *SpotifyHandler) SaveUserCurrentlyPlaylist(c *gin.Context) {
 }
 
 func (h *SpotifyHandler) SaveUserRecentlyPlayedTracks(c *gin.Context) {
-
+	//recentlyPlayedTracks := h.Client.
 }
 
-func (h *SpotifyHandler) SaveUserFavoriteArtists(c *gin.Context) {
-	// 時間ごとに 表示できるにしたい
+/*
+func (h *SpotifyHandler) saveArtists(c *gin.Context, data interface{}) {
+	resp, ok := data.(*spotify.CurrentUserArtistResponse)
+	if ok == false {
+		fmt.Println(resp)
+		return
+	}
 
+	//var artist datastore.Artist
+	//var userArtistTag datastore.UserArtistTag
+	tomozouID, _ := c.Get("tomozou-id")
+	userID, _ := tomozouID.(int)
+
+	for _, item := range resp.Items {
+		// item.Images[0] が ないときの 条件分岐欲しい
+
+		// socialID で Artist があるか 探す, なければ追加
+		artist := datastore.NewArtist(item.Name, item.ID, item.Images[0].URL)
+
+		userArtistTag := datastore.NewUserArtistTag(userID, 1, "short_term")
+
+		// spotifyHandler に SpotifyDBRepository を　作成
+		// => そこから メソッドを切り分けていくプラン
+	}
+
+}
+*/
+
+func (h *SpotifyHandler) SaveUserFavoriteArtists(c *gin.Context) {
+	var timerange string
+	var opt spotify.Options
+
+	timerange = "short_term"
+	opt.Timerange = &timerange
+	favorite, err := h.Client.CurrentUsersTopArtistsOpt(&opt)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	timerange = "long_term"
+	opt.Timerange = &timerange
+	recentlyFavorite, err := h.Client.CurrentUsersTopArtistsOpt(&opt)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(recentlyFavorite)
+
+	c.JSON(200, favorite)
 }
 
 func (h *SpotifyHandler) SaveUserNowPlaying(c *gin.Context) {

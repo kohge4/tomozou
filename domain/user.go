@@ -8,9 +8,7 @@ type User struct {
 
 type UserRepository interface {
 	Save(User) error
-	ReadAll() error
-	//Raed()
-	//Delete()
+	Read() (User, error)
 }
 
 type UserContent struct {

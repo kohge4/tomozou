@@ -1,15 +1,32 @@
 package datastore
 
-import "time"
+import (
+	"time"
 
+	"github.com/jinzhu/gorm"
+)
+
+type SpotifyDBRepository struct {
+	DB *gorm.DB
+}
+
+// 以下の モデル　を 本来は interface  に描きたい
 type UserArtistTag struct {
-	ID int
+	ID int `gorm:"column:id;not null;AUTO_INCREMENT" json:"id"`
 
-	UserID   int
-	ArtistID int
+	UserID   int `gorm:"column:user_id;not null" json:"user_id"`
+	ArtistID int `gorm:"column:artist_id;not null" json:"artist_id"`
 
-	TagName string
+	TagName string `gorm:"column:tag_name;not null" json:"tag_name"`
 	// FavoriteShorterm とか
+}
+
+func NewUserArtistTag(userID int, artistID int, tagName string) UserArtistTag {
+	return UserArtistTag{
+		UserID:   userID,
+		ArtistID: artistID,
+		TagName:  tagName,
+	}
 }
 
 type Track struct {
