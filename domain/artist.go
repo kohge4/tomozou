@@ -1,4 +1,4 @@
-package artist
+package domain
 
 import "time"
 
@@ -17,4 +17,13 @@ func NewArtist(name string, socialID string, image string) Artist {
 		SocialID: socialID,
 		Image:    image,
 	}
+}
+
+type ArtistTrackTag struct {
+	ID int
+
+	ArtistID int
+	TrackID  int
+
+	TagName string
 }

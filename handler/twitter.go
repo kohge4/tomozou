@@ -11,6 +11,7 @@ import (
 	twauth "github.com/dghubble/oauth1/twitter"
 	"github.com/gin-gonic/contrib/sessions"
 
+	"tomozou/domain"
 	"tomozou/infra/datastore"
 )
 
@@ -97,8 +98,8 @@ func (h *TwitterHandler) Me(c *gin.Context) {
 	Me, _, _ := h.Client.Accounts.VerifyCredentials(tParam)
 	//c.JSON(200, Me)
 
-	userRepo := datastore.NewUserDBRepository()
-	user := datastore.User{
+	userRepo := datastore.NewUserDBRepository(gormConn)
+	user := domain.User{
 		SocialID: Me.IDStr,
 		Name:     Me.ScreenName,
 		Auth:     "ok",

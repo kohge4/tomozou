@@ -1,6 +1,8 @@
 package usecase
 
-import "tomozou/domain"
+import (
+	"tomozou/domain"
+)
 
 //
 /*
@@ -27,41 +29,62 @@ User の 情報を表示(DB から)
 
 */
 
-type UserApplication struct {
+type UserProfileApplication struct {
 	UserRepository domain.UserRepository
-	SocialAccount  domain.SocialAccount
+	ItemRepository domain.ItemRepository
+
+	// spotify 関連の情報は まとめて 保存する (やりとりはない)
+	WebServiceAccount domain.WebServiceAccount
 }
 
-func (u UserApplication) SignUp() error {
-	err := u.SocialAccount.SignIn()
+func NewUserProfileApplication(uR domain.UserRepository, iR domain.ItemRepository) UserProfileApplication {
+	return UserProfileApplication{
+		UserRepository: uR,
+		ItemRepository: iR,
+	}
+}
+
+func (u UserProfileApplication) RegistryUser() error {
+	// アカウントを登録して User 情報を保存する
+	user, err := u.WebServiceAccount.User()
+	id, err := u.UserRepository.Save(*user)
 	if err != nil {
 		return err
 	}
-
-	user, err := u.SocialAccount.User()
-	if err != nil {
-		return err
-	}
-
-	err = u.UserRepository.Save(user)
+	err = u.WebServiceAccount.SaveUserItem(id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (u UserApplication) SignIn() error {
-	_, err := u.UserRepository.Read()
+func (u UserProfileApplication) ReRegistiryUser(id int) error {
+	// 任意の User の アカウントを 再連携して, 情報を更新する
+	// Token を 外からひっぱてくる処理をかく
+	user, err := u.UserRepository.ReadByID(id)
 	if err != nil {
-		return nil
+		return err
+	}
+	err = u.WebServiceAccount.Link(user)
+	if err != nil {
+		return err
+	}
+	err = u.WebServiceAccount.SaveUserItem(id)
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
-func (u UserApplication) SignOut() {
-
+func (u UserProfileApplication) DisplayMe() (interface{}, error) {
+	return nil, nil
 }
 
-func (u UserApplication) DisplayContent() {
-
+func (u UserProfileApplication) DisplayContent(id int) (interface{}, error) {
+	// Controller で id を token から 持ってくる
+	item, err := u.ItemRepository.ReadItemByUser(id)
+	if err != nil {
+		return nil, err
+	}
+	return item, nil
 }
