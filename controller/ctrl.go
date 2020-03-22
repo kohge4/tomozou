@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -39,9 +40,11 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) Me(c *gin.Context) {
-	me, err := u.UseCase.DisplayMe()
+	me, err := u.UseCase.DisplayMe(1)
 	if err != nil {
 		c.String(403, err.Error())
 	}
+	fmt.Println("MMMMMEEEEEEE")
+	fmt.Println(me)
 	c.JSON(200, me)
 }

@@ -19,7 +19,9 @@ func NewSpotifyItemDBRepository(db *gorm.DB) domain.ItemRepository {
 
 // UserApplication で 外から使用する ==> 大元の リポジトリを 外から使用する方針の方が綺麗
 func (repo *SpotifyItemDBRepository) ReadItemByUser(userID int) (interface{}, error) {
-	return nil, nil
+	var artists []domain.Artist
+	repo.DB.Find(&artists)
+	return artists, nil
 }
 
 // 使用しない可能性あり

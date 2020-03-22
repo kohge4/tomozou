@@ -76,8 +76,12 @@ func (u UserProfileApplication) ReRegistiryUser(id int) error {
 	return nil
 }
 
-func (u UserProfileApplication) DisplayMe() (interface{}, error) {
-	return nil, nil
+func (u UserProfileApplication) DisplayMe(id int) (interface{}, error) {
+	artists, err := u.ItemRepository.ReadItemByUser(id)
+	if err != nil {
+		return nil, err
+	}
+	return artists, nil
 }
 
 func (u UserProfileApplication) DisplayContent(id int) (interface{}, error) {
