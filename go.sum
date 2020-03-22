@@ -67,6 +67,8 @@ github.com/kohge4/spotify v0.0.0-20200315093432-085f81fdcc3a h1:kWT5MFux35y3KIy5
 github.com/kohge4/spotify v0.0.0-20200315093432-085f81fdcc3a/go.mod h1:iPKgBs5p28+7qwP73Ln9d03gySf8zyqxZeVvNbWeoTw=
 github.com/kohge4/spotify v0.0.0-20200317133426-71362aa37f2e h1:zolQO6flCdxgjq3kBIx586E8X4HUKuVvtNQGkuY3BuU=
 github.com/kohge4/spotify v0.0.0-20200317133426-71362aa37f2e/go.mod h1:iPKgBs5p28+7qwP73Ln9d03gySf8zyqxZeVvNbWeoTw=
+github.com/kohge4/spotify v0.0.0-20200317134020-7cf3f87f0c66 h1:WhC9/Zq7YAeY2W3W+FfPk4zoIFGwz6WpH8XtICCmnOE=
+github.com/kohge4/spotify v0.0.0-20200317134020-7cf3f87f0c66/go.mod h1:iPKgBs5p28+7qwP73Ln9d03gySf8zyqxZeVvNbWeoTw=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=

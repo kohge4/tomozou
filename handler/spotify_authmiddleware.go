@@ -10,6 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const identityKey = "userid"
+
+type User struct {
+	UserName    string
+	AccountType string
+	UserID      int
+}
+
 func AuthUser() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",

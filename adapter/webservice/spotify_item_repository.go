@@ -1,30 +1,34 @@
 package webservice
 
 import (
+	"fmt"
 	"tomozou/domain"
 
 	"github.com/kohge4/spotify"
 )
 
 func (h *SpotifyHandler) saveTopArtists(userID int) error {
-	timerange := "long_term"
+	timerange := "long"
 	opt := &spotify.Options{
 		Timerange: &timerange,
 	}
 
 	results, err := h.Client.CurrentUsersTopArtistsOpt(opt)
+	fmt.Println(results)
+	fmt.Printf("%T", results)
 	if err != nil {
 		return err
 	}
-	for _, result := range results.Artists {
-		artist, _ := h.SpotifyRepository.ReadArtistBySocialID(result.ID.String())
+	for _, result := range results.Items {
+		var artist *domain.Artist
+		artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
 		if artist == nil {
-			artist := domain.Artist{
+			artist = &domain.Artist{
 				Name:     result.Name,
-				SocialID: result.ID.String(),
+				SocialID: result.ID,
 				Image:    result.Images[0].URL,
 			}
-			artist.ID, err = h.SpotifyRepository.SaveArtist(artist)
+			artist.ID, err = h.SpotifyRepository.SaveArtist(*artist)
 			if err != nil {
 				return err
 			}
@@ -40,7 +44,7 @@ func (h *SpotifyHandler) saveTopArtists(userID int) error {
 }
 
 func (h *SpotifyHandler) saveRecentlyFavoriteArtists(userID int) error {
-	timerange := "short_term"
+	timerange := "short"
 	opt := &spotify.Options{
 		Timerange: &timerange,
 	}
@@ -49,15 +53,16 @@ func (h *SpotifyHandler) saveRecentlyFavoriteArtists(userID int) error {
 	if err != nil {
 		return err
 	}
-	for _, result := range results.Artists {
-		artist, _ := h.SpotifyRepository.ReadArtistBySocialID(result.ID.String())
+	for _, result := range results.Items {
+		var artist *domain.Artist
+		artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
 		if artist == nil {
-			artist := domain.Artist{
+			artist = &domain.Artist{
 				Name:     result.Name,
-				SocialID: result.ID.String(),
+				SocialID: result.ID,
 				Image:    result.Images[0].URL,
 			}
-			artist.ID, err = h.SpotifyRepository.SaveArtist(artist)
+			artist.ID, err = h.SpotifyRepository.SaveArtist(*artist)
 			if err != nil {
 				return err
 			}
