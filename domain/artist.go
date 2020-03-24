@@ -24,6 +24,5 @@ type ArtistTrackTag struct {
 
 	ArtistID int
 	TrackID  int
-
-	TagName string
+	TagName  string
 }

@@ -1,7 +1,6 @@
 package datastore
 
 import (
-	"fmt"
 	"tomozou/domain"
 
 	"github.com/jinzhu/gorm"
@@ -11,7 +10,6 @@ import (
 func GormConn() (*gorm.DB, error) {
 	db, err := gorm.Open("sqlite3", "test.db")
 	if err != nil {
-		fmt.Printf("%v", err)
 		return nil, err
 	}
 	if !db.HasTable(&domain.User{}) {

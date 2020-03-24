@@ -1,7 +1,6 @@
 package webservice
 
 import (
-	"fmt"
 	"tomozou/domain"
 
 	"github.com/kohge4/spotify"
@@ -9,13 +8,13 @@ import (
 
 func (h *SpotifyHandler) saveTopArtists(userID int) error {
 	timerange := "long"
+	limit := 5
 	opt := &spotify.Options{
 		Timerange: &timerange,
+		Limit:     &limit,
 	}
 
 	results, err := h.Client.CurrentUsersTopArtistsOpt(opt)
-	fmt.Println(results)
-	fmt.Printf("%T", results)
 	if err != nil {
 		return err
 	}
@@ -34,9 +33,12 @@ func (h *SpotifyHandler) saveTopArtists(userID int) error {
 			}
 		}
 		tag := domain.UserArtistTag{
-			UserID:   userID,
-			ArtistID: artist.ID,
-			TagName:  "top_artist",
+			UserID:     userID,
+			ArtistID:   artist.ID,
+			TagName:    "top_artist",
+			ArtistName: result.Name,
+			URL:        result.ExternalUrls.Spotify,
+			Image:      result.Images[0].URL,
 		}
 		h.SpotifyRepository.SaveUserArtistTag(tag)
 	}
@@ -45,8 +47,10 @@ func (h *SpotifyHandler) saveTopArtists(userID int) error {
 
 func (h *SpotifyHandler) saveRecentlyFavoriteArtists(userID int) error {
 	timerange := "short"
+	limit := 5
 	opt := &spotify.Options{
 		Timerange: &timerange,
+		Limit:     &limit,
 	}
 
 	results, err := h.Client.CurrentUsersTopArtistsOpt(opt)
@@ -68,9 +72,12 @@ func (h *SpotifyHandler) saveRecentlyFavoriteArtists(userID int) error {
 			}
 		}
 		tag := domain.UserArtistTag{
-			UserID:   userID,
-			ArtistID: artist.ID,
-			TagName:  "recently_favorite_artist",
+			UserID:     userID,
+			ArtistID:   artist.ID,
+			TagName:    "recently_favorite_artist",
+			ArtistName: result.Name,
+			URL:        result.ExternalUrls.Spotify,
+			Image:      result.Images[0].URL,
 		}
 		h.SpotifyRepository.SaveUserArtistTag(tag)
 	}

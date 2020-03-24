@@ -6,6 +6,7 @@ import (
 
 	"tomozou/adapter/webservice"
 	"tomozou/controller"
+	"tomozou/domain"
 	"tomozou/handler"
 	"tomozou/infra/datastore"
 	"tomozou/usecase"
@@ -40,9 +41,10 @@ func main() {
 	r.GET("/spotify/top", func(c *gin.Context) {
 		c.String(200, "OkSpotify")
 	})
-	r.GET("/spotify/me", userProfileAppImpl.Me)
+	r.GET("/spotify/me", userProfileAppImpl.MyProfile)
+	r.GET("/spotify/myartist", userProfileAppImpl.MyArtist)
 
-	auth := r.Group("/auth")
+	auth := r.Group("/me")
 	// Refresh time can be longer than token timeout
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
@@ -51,7 +53,34 @@ func main() {
 			data, _ := c.Get("id")
 			c.JSON(200, data)
 		})
+		auth.GET("/profile", userProfileAppImpl.MyProfile)
 	}
-	r.Run(":8000")
 
+	devUserRepo := datastore.NewDevUserRepo(gormConn)
+	r.GET("/dev/user", func(c *gin.Context) {
+		users, _ := devUserRepo.CheckUser()
+		c.JSON(200, users)
+	})
+	r.GET("/dev/tag", func(c *gin.Context) {
+		tags := []domain.UserArtistTag{}
+		devUserRepo.DB.Find(&tags)
+		c.JSON(200, tags)
+	})
+	r.GET("/dev/userdata", func(c *gin.Context) {
+		//userData := domain.
+	})
+
+	// Chat 用: authによるJWT 以下から
+	chatRepo := datastore.NewChatDBRepository(gormConn)
+	chatApp := usecase.ChatApplication{
+		ItemRepository: itemRepo,
+		ChatRepository: chatRepo,
+	}
+	chatAppImpl := controller.ChatApplicationImpl{
+		UseCase: chatApp,
+	}
+	r.GET("/chat/room", chatAppImpl.DisplayChatRoom)
+	r.POST("/chat/user/comment", chatAppImpl.UserChat)
+
+	r.Run(":8000")
 }

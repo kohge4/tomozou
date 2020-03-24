@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -12,7 +11,7 @@ import (
 )
 
 type UserProfileApplicationImpl struct {
-	UseCase usecase.UserProfileApplication
+	UseCase *usecase.UserProfileApplication
 
 	Handler        *webservice.SpotifyHandler
 	AuthMiddleware *jwt.GinJWTMiddleware
@@ -39,12 +38,54 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 	u.AuthMiddleware.LoginHandler(c)
 }
 
-func (u *UserProfileApplicationImpl) Me(c *gin.Context) {
-	me, err := u.UseCase.DisplayMe(1)
+func (u *UserProfileApplicationImpl) MyProfile(c *gin.Context) {
+	id, _ := c.Get("tomozou-id")
+	userID, _ := id.(int)
+
+	if userID == 0 {
+		userID = 1
+	}
+	me, err := u.UseCase.Me(userID)
 	if err != nil {
 		c.String(403, err.Error())
 	}
-	fmt.Println("MMMMMEEEEEEE")
-	fmt.Println(me)
+	tag, err := u.UseCase.MyUserArtistTag(userID)
+	if err != nil {
+		return
+	}
+
+	response := MyProfileResponse{
+		Me:      me,
+		Artists: tag,
+		//TopArtists:      tag,
+		//FavoriteArtists: tag,
+	}
+	c.JSON(200, response)
+}
+
+func (u *UserProfileApplicationImpl) Me(c *gin.Context) {
+	id, _ := c.Get("tomozou-id")
+	userID, _ := id.(int)
+	me, err := u.UseCase.DisplayMe(userID)
+	if err != nil {
+		c.String(403, err.Error())
+	}
 	c.JSON(200, me)
+}
+
+func (u *UserProfileApplicationImpl) MyArtist(c *gin.Context) {
+	id, _ := c.Get("tomozou-id")
+	userID, _ := id.(int)
+	myArtists, err := u.UseCase.MyArtistTag(1)
+	if err != nil {
+		c.JSON(403, err.Error())
+	}
+	println("CCHHH")
+	println(id)
+	println(userID)
+	c.JSON(200, myArtists)
+}
+
+func (u *UserProfileApplicationImpl) MyTrack(c *gin.Context) {
+
 }

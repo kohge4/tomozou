@@ -37,14 +37,14 @@ type UserProfileApplication struct {
 	WebServiceAccount domain.WebServiceAccount
 }
 
-func NewUserProfileApplication(uR domain.UserRepository, iR domain.ItemRepository) UserProfileApplication {
-	return UserProfileApplication{
+func NewUserProfileApplication(uR domain.UserRepository, iR domain.ItemRepository) *UserProfileApplication {
+	return &UserProfileApplication{
 		UserRepository: uR,
 		ItemRepository: iR,
 	}
 }
 
-func (u UserProfileApplication) RegistryUser() error {
+func (u *UserProfileApplication) RegistryUser() error {
 	// アカウントを登録して User 情報を保存する
 	user, err := u.WebServiceAccount.User()
 	id, err := u.UserRepository.Save(*user)
@@ -58,7 +58,7 @@ func (u UserProfileApplication) RegistryUser() error {
 	return nil
 }
 
-func (u UserProfileApplication) ReRegistiryUser(id int) error {
+func (u *UserProfileApplication) ReRegistiryUser(id int) error {
 	// 任意の User の アカウントを 再連携して, 情報を更新する
 	// Token を 外からひっぱてくる処理をかく
 	user, err := u.UserRepository.ReadByID(id)
@@ -76,7 +76,15 @@ func (u UserProfileApplication) ReRegistiryUser(id int) error {
 	return nil
 }
 
-func (u UserProfileApplication) DisplayMe(id int) (interface{}, error) {
+func (u *UserProfileApplication) Me(id int) (interface{}, error) {
+	me, err := u.UserRepository.ReadByID(id)
+	if err != nil {
+		return nil, err
+	}
+	return me, nil
+}
+
+func (u *UserProfileApplication) DisplayMe(id int) (interface{}, error) {
 	artists, err := u.ItemRepository.ReadItemByUser(id)
 	if err != nil {
 		return nil, err
@@ -84,11 +92,27 @@ func (u UserProfileApplication) DisplayMe(id int) (interface{}, error) {
 	return artists, nil
 }
 
-func (u UserProfileApplication) DisplayContent(id int) (interface{}, error) {
+func (u *UserProfileApplication) MyArtistTag(id int) (interface{}, error) {
+	artistTags, err := u.ItemRepository.ReadUserArtistTagByUserID(id)
+	if err != nil {
+		return nil, err
+	}
+	return artistTags, nil
+}
+
+func (u *UserProfileApplication) DisplayContent(id int) (interface{}, error) {
 	// Controller で id を token から 持ってくる
 	item, err := u.ItemRepository.ReadItemByUser(id)
 	if err != nil {
 		return nil, err
 	}
 	return item, nil
+}
+
+func (u UserProfileApplication) MyUserArtistTag(id int) (interface{}, error) {
+	tags, err := u.ItemRepository.ReadUserArtistTagByUserID(id)
+	if err != nil {
+		return nil, err
+	}
+	return tags, nil
 }

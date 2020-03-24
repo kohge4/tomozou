@@ -87,6 +87,7 @@ func AuthUser() *jwt.GinJWTMiddleware {
 				"expire":     expire.Format(time.RFC3339),
 				"ID":         id,
 				"tomozou-id": tomozouID,
+				"url":        "http://localhost:8080/me",
 			})
 			// me の エンドポイントを 返せばOK
 		},
