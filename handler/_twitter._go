@@ -18,8 +18,8 @@ import (
 const redirectTwitterURL = "http://localhost:8000/twitter/callback"
 
 var config = oauth1.Config{
-	ConsumerKey:    "2U9Fsq4hNOkL9S6dy7awyKrSk",
-	ConsumerSecret: "KbQ6tKJM39HXtD2UptXnAvFpWewFW7WVpTcCP0MJVPkhIJZHTN",
+	ConsumerKey:    "",
+	ConsumerSecret: "",
 	Endpoint:       twauth.AuthorizeEndpoint,
 	//CallbackURL:    "http://localhost:8080/twitter/callback",
 }
