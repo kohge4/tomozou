@@ -19,8 +19,8 @@ const (
 	//redirectSpotifyURL = "http://localhost:8000/spotify/callback"
 	redirectSpotifyURL = "http://localhost:8080/spotify/callback"
 	state              = "secret"
-	clientID           = "08ad2a3fa89349eabb5b2e9929946b27"
-	secretKey          = "10c3f63b95dc4af887ed5f0779a8df6a"
+	clientID           = "7"
+	secretKey          = "106a"
 )
 
 type SpotifyHandler struct {
