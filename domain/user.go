@@ -1,28 +1,18 @@
 package domain
 
 type User struct {
-	ID            int
-	Name          string
-	SocialService []SocialService
+	ID       int    `gorm:"not null;AUTO_INCREMENT" json:"id"`
+	SocialID string `gorm:"not null" json:"social_id"`
+	Name     string `gorm:"not null" json:"name"`
+	Auth     string `gorm:"not null" json:"auth"`
+	Image    string `gorm:"column:image" json:"image"`
 }
 
-type UserRepository interface {
-	Save(User) error
-	ReadAll() error
-	//Raed()
-	//Delete()
-}
-
-type UserContent struct {
-	ID       int
-	UserID   int
-	SocialID int
-	Content  interface{}
-}
-
-type UserContentRepository interface {
-	Save()
-	Read()
-	ReadAll()
-	Delete()
+func NewUser(socialID string, name string, auth string, image string) User {
+	return User{
+		SocialID: socialID,
+		Name:     name,
+		Auth:     auth,
+		Image:    image,
+	}
 }

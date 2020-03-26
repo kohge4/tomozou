@@ -1,7 +1,7 @@
 package datastore
 
 import (
-	"fmt"
+	"tomozou/domain"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
@@ -10,9 +10,19 @@ import (
 func GormConn() (*gorm.DB, error) {
 	db, err := gorm.Open("sqlite3", "test.db")
 	if err != nil {
-		fmt.Printf("%v", err)
 		return nil, err
 	}
-	//defer db.Close()
+	if !db.HasTable(&domain.User{}) {
+		db.CreateTable(&domain.User{})
+	}
+	if !db.HasTable(&domain.Artist{}) {
+		db.CreateTable(&domain.Artist{})
+	}
+	if !db.HasTable(&domain.UserArtistTag{}) {
+		db.CreateTable(&domain.UserArtistTag{})
+	}
+	if !db.HasTable(&domain.UserArtistTag{}) {
+		db.CreateTable(&domain.UserArtistTag{})
+	}
 	return db, nil
 }

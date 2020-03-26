@@ -1,24 +1,23 @@
 package domain
 
-type SocialService struct {
-	SocialID    string
-	ServiceName string
-}
+type WebServiceAccount interface {
+	User() (*User, error)
+	Content() (UserItem, error)
+	Link(User) error
 
-type SocialAccount interface {
-	ToUser() (User, error)
-	Content() (SocialAccountContent, error)
+	// SpotifyHandler.SaveUserItem で 必要な情報を 全部保存
+	SaveUserItem(userID int) error
 
-	SignIn()
-	SignUp()
+	SignIn() (string, error)
+	Callback() (string, error)
+	SignUp() (string, error)
 	SignOut(User) error
-	DeleteUser(User) error
+	//DeleteUser(User) error
 }
 
-type SocialAccountContent interface {
-	Save()
-	//ReadAll()
-	Read()
-	//Delete()
-	ToUserContent() (UserContent, error)
+type UserItem struct {
+	TopArtist              []Artist
+	RecentlyFavoriteArtist []Artist
+	TopTrack               []Track
+	RecentlyPlayedTrack    []Track
 }

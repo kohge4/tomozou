@@ -2,8 +2,8 @@ package handler
 
 import (
 	"fmt"
-	"net/http"
 
+	"tomozou/domain"
 	"tomozou/infra/datastore"
 
 	"github.com/gin-gonic/gin"
@@ -31,30 +31,32 @@ type SpotifyHandler struct {
 
 	Authenticator spotify.Authenticator
 	Client        spotify.Client
-	Repository    *gorm.DB
+	DB            *gorm.DB
 	// UserDBRepo を　追加したほうがいい
+	UserRepository    domain.UserRepository
+	SpotifyRepository domain.ItemRepository
 }
 
-func NewSpotifyHandler() *SpotifyHandler {
+func NewSpotifyHandler(db *gorm.DB, userRepo domain.UserRepository) *SpotifyHandler {
 	Authenticator := spotify.NewAuthenticator(redirectSpotifyURL, spotify.ScopeUserReadPrivate, spotify.ScopeUserTopRead,
 		spotify.ScopeUserReadRecentlyPlayed, spotify.ScopePlaylistModifyPrivate, spotify.ScopePlaylistReadPrivate,
 		spotify.ScopePlaylistReadCollaborative, spotify.ScopeUserReadRecentlyPlayed, spotify.ScopeUserReadCurrentlyPlaying)
+
+	spRepo := datastore.NewSpotifyItemDBRepository(db)
+
 	return &SpotifyHandler{
 		ClientID:    clientID,
 		SecretKey:   secretKey,
 		RedirectURL: redirectSpotifyURL,
 		State:       state,
 
-		Authenticator: Authenticator,
+		Authenticator:     Authenticator,
+		UserRepository:    userRepo,
+		SpotifyRepository: spRepo,
+
+		DB: db,
 		//Client:        spotify.Client{},
 	}
-}
-
-func (h *SpotifyHandler) Login(c *gin.Context) {
-	//spotifyAuth = spotify.NewAuthenticator(redirectURI, spotify.ScopeUserReadPrivate)
-	h.Authenticator.SetAuthInfo(h.ClientID, h.SecretKey)
-	//c.Redirect(http.StatusTemporaryRedirect, h.Authenticator.AuthURL(h.State))
-	c.JSON(200, Response{200, h.Authenticator.AuthURL(h.State)})
 }
 
 func (h *SpotifyHandler) LoginBackend(c *gin.Context) {
@@ -64,68 +66,16 @@ func (h *SpotifyHandler) LoginBackend(c *gin.Context) {
 	c.Redirect(200, h.Authenticator.AuthURL(h.State))
 }
 
-func (h *SpotifyHandler) Callback(c *gin.Context) {
-	// front からの url の prams を使って requets を使うのがベスト？
-	token, err := h.Authenticator.Token(h.State, c.Request)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-	//fmt.Println(token)
-	//c.SetCookie("spotify-token", token.AccessRoken, )
-	h.Client = h.Authenticator.NewClient(token)
-	//c.Redirect(http.StatusTemporaryRedirect, "/spotify/me")
-	Me, err := h.Client.CurrentUser()
-	if err != nil {
-		c.String(200, err.Error())
-	}
-	c.JSON(200, Me)
-	fmt.Println("okok")
-	//DB に なければ保存する処理？, 毎回 p路フィールで呼ぶのめんどいからよくないかも
-	// 最初に ログインしてるなら 云々で処理した方がいいかも
-	// cookie に保存する感じな気がする accesstoken を
-	userRepo := datastore.NewUserSpotifyDBRepository()
-	userS := datastore.UserSpotify{
-		UserID:       "dou",
-		SocialID:     Me.ID,
-		UserName:     Me.DisplayName,
-		AccessToken:  token.AccessToken,
-		RefreshToken: token.RefreshToken,
-	}
-
-	//userToken := datastore.UserToken{}
-	userRepo.Save(userS)
-	fmt.Println("Spotify Login Result and Token")
-	fmt.Println(userS)
-	fmt.Println(token.AccessToken)
-	//userSRepo := datastore.NewUserSpotifyDBRepository()
-
-	c.JSON(200, Response{200, "http://localhost:8080/spotify/me"})
-}
-
 func (h *SpotifyHandler) Me(c *gin.Context) {
 	//fmt.Printf("%T \n", h.Client)
 	//認証が住んでないとページに飛べない ==> 何かしらの 前処理ほしい（error 的なの呼べるようにしたい）
+	// endpoint /me
 	Me, err := h.Client.CurrentUser()
 	if err != nil {
 		c.String(200, err.Error())
 	}
 	c.JSON(200, Me)
 	fmt.Println("okok")
-	//DB に なければ保存する処理？, 毎回 p路フィールで呼ぶのめんどいからよくないかも
-	// 最初に ログインしてるなら 云々で処理した方がいいかも
-	// cookie に保存する感じな気がする accesstoken を
-	/*
-		userRepo := datastore.NewUserDBRepository()
-		user := datastore.User{
-			SocialID: Me.ID,
-			Name:     Me.DisplayName,
-			Auth:     "ok",
-		}
-		userRepo.Save(user)
-		users := userRepo.ReadAll()
-		fmt.Println(users)
-	*/
 }
 
 func (h *SpotifyHandler) MeData(c *gin.Context) {
