@@ -8,6 +8,7 @@ import (
 	"tomozou/domain"
 	"tomozou/handler"
 	"tomozou/infra/datastore"
+	"tomozou/middleware/auth"
 	"tomozou/usecase"
 )
 
@@ -20,7 +21,7 @@ func main() {
 	useCase := usecase.NewUserProfileApplication(userRepo, itemRepo)
 
 	spotifyHandler := webservice.NewSpotifyHandler(userRepo, itemRepo, gormConn)
-	authMiddleware := handler.AuthUser()
+	authMiddleware := auth.AuthUser()
 
 	userProfileAppImpl := handler.UserProfileApplicationImpl{
 		UseCase: useCase,
