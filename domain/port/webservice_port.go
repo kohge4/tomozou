@@ -1,14 +1,14 @@
-package port
+package domain
 
 import "tomozou/domain"
 
 type WebServiceAccount interface {
-	User() (domain.User, error)
+	User() (*domain.User, error)
 	Content() (ContentRepository, error)
 
 	SignIn() error
 	SignUp() error
-	SignOut(domain.User) error
+	SignOut(*domain.User) error
 	//DeleteUser(User) error
 }
 

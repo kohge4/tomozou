@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"tomozou/adapter/webservice"
-	"tomozou/controller"
 	"tomozou/domain"
 	"tomozou/handler"
 	"tomozou/infra/datastore"
@@ -23,7 +22,7 @@ func main() {
 	spotifyHandler := webservice.NewSpotifyHandler(userRepo, itemRepo, gormConn)
 	authMiddleware := handler.AuthUser()
 
-	userProfileAppImpl := controller.UserProfileApplicationImpl{
+	userProfileAppImpl := handler.UserProfileApplicationImpl{
 		UseCase: useCase,
 
 		Handler:        spotifyHandler,
@@ -67,7 +66,6 @@ func main() {
 		c.JSON(200, tags)
 	})
 	r.GET("/dev/userdata", func(c *gin.Context) {
-		//userData := domain.
 	})
 
 	// Chat 用: authによるJWT 以下から
@@ -76,7 +74,7 @@ func main() {
 		ItemRepository: itemRepo,
 		ChatRepository: chatRepo,
 	}
-	chatAppImpl := controller.ChatApplicationImpl{
+	chatAppImpl := handler.ChatApplicationImpl{
 		UseCase: chatApp,
 	}
 	r.GET("/chat/room", chatAppImpl.DisplayChatRoom)

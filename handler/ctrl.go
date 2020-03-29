@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"net/http"
@@ -80,7 +80,6 @@ func (u *UserProfileApplicationImpl) MyArtist(c *gin.Context) {
 	if err != nil {
 		c.JSON(403, err.Error())
 	}
-	println("CCHHH")
 	println(id)
 	println(userID)
 	c.JSON(200, myArtists)
