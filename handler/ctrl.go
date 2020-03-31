@@ -85,6 +85,17 @@ func (u *UserProfileApplicationImpl) MyArtist(c *gin.Context) {
 	c.JSON(200, myArtists)
 }
 
+func (u *UserProfileApplicationImpl) SearchUsersByArtist(c *gin.Context) {
+	id, _ := c.Get("tomozou-id")
+	println(id)
+
+	users, err := u.UseCase.DisplayUsersByArtist(1)
+	if err != nil {
+		c.JSON(403, err.Error())
+	}
+	c.JSON(200, users)
+}
+
 func (u *UserProfileApplicationImpl) MyTrack(c *gin.Context) {
 
 }

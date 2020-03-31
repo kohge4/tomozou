@@ -116,3 +116,19 @@ func (u UserProfileApplication) MyUserArtistTag(id int) (interface{}, error) {
 	}
 	return tags, nil
 }
+
+func (u UserProfileApplication) DisplayUsersByArtist(artistID int) (interface{}, error) {
+	var users []domain.User
+	var user domain.User
+
+	// Userが tag が新しい順にソートされてる
+	userIDs, err := u.ItemRepository.ReadUserIDByArtistID(artistID)
+	for _, userID := range userIDs {
+		user, err = u.UserRepository.ReadByID(userID)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}

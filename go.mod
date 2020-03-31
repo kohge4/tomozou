@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/appleboy/gin-jwt/v2 v2.6.3
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
+	github.com/deckarep/golang-set v1.7.1
 	github.com/dghubble/go-twitter v0.0.0-20190719072343-39e5462e111f
 	github.com/dghubble/oauth1 v0.6.0
 	github.com/gin-contrib/cors v1.3.1

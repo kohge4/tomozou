@@ -1,6 +1,7 @@
 package datastore
 
 import (
+	"fmt"
 	"tomozou/domain"
 
 	"github.com/jinzhu/gorm"
@@ -47,12 +48,39 @@ func (repo *SpotifyItemDBRepository) SaveUserArtistTag(tag domain.UserArtistTag)
 }
 
 func (repo *SpotifyItemDBRepository) ReadArtistBySocialID(socialID string) (*domain.Artist, error) {
-	//repo.DB.Find()
-	return nil, nil
+	artists := []*domain.Artist{}
+	repo.DB.Where("social_id = ?", socialID).Find(&artists)
+	if len(artists) == 0 {
+		return nil, nil
+	}
+	if len(artists) == 1 {
+		return artists[0], nil
+	}
+	fmt.Println("DUPLICATED ARTIST")
+	return artists[0], nil
 }
 
 func (repo *SpotifyItemDBRepository) ReadUserArtistTagByUserID(userID int) (interface{}, error) {
 	userArtistTags := []domain.UserArtistTag{}
 	repo.DB.Where("user_id = ?", userID).Find(&userArtistTags)
 	return userArtistTags, nil
+}
+
+func (repo *SpotifyItemDBRepository) ReadUserIDByArtistID(artistID int) ([]int, error) {
+	var users []int
+	flag := 0
+
+	userArtistTags := []domain.UserArtistTag{}
+	repo.DB.Where("artist_id = ?", artistID).Find(&userArtistTags)
+
+	// 並び替えた後
+	println("CCHHEE")
+	for _, tag := range userArtistTags {
+		if flag != tag.UserID {
+			users = append(users, tag.UserID)
+			flag = tag.UserID
+			println(tag.UserID)
+		}
+	}
+	return users, nil
 }

@@ -10,4 +10,6 @@ type ItemRepository interface {
 
 	ReadTagByUser(userID int) (interface{}, error)
 	ReadUserArtistTagByUserID(userID int) (interface{}, error)
+
+	ReadUserIDByArtistID(artistID int) ([]int, error)
 }

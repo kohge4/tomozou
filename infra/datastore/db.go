@@ -21,8 +21,8 @@ func GormConn() (*gorm.DB, error) {
 	if !db.HasTable(&domain.UserArtistTag{}) {
 		db.CreateTable(&domain.UserArtistTag{})
 	}
-	if !db.HasTable(&domain.UserArtistTag{}) {
-		db.CreateTable(&domain.UserArtistTag{})
+	if !db.HasTable(&domain.UserToken{}) {
+		db.CreateTable(&domain.UserToken{})
 	}
 	return db, nil
 }

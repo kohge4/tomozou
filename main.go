@@ -43,6 +43,7 @@ func main() {
 	})
 	r.GET("/spotify/me", userProfileAppImpl.MyProfile)
 	r.GET("/spotify/myartist", userProfileAppImpl.MyArtist)
+	r.GET("/search/user/byartist", userProfileAppImpl.SearchUsersByArtist)
 
 	auth := r.Group("/me")
 	// Refresh time can be longer than token timeout

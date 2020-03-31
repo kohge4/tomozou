@@ -20,7 +20,10 @@ func (h *SpotifyHandler) saveTopArtists(userID int) error {
 	}
 	for _, result := range results.Items {
 		var artist *domain.Artist
+
 		artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
+		println("CCCHHEEC")
+		println(artist)
 		if artist == nil {
 			artist = &domain.Artist{
 				Name:     result.Name,
@@ -59,6 +62,7 @@ func (h *SpotifyHandler) saveRecentlyFavoriteArtists(userID int) error {
 	}
 	for _, result := range results.Items {
 		var artist *domain.Artist
+
 		artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
 		if artist == nil {
 			artist = &domain.Artist{
