@@ -21,10 +21,12 @@ func (repo *ChatDBRepository) SaveChat(chat *domain.UserChat) error {
 	return nil
 }
 
-func (repo *ChatDBRepository) ReadChatByUserID(userID int) (interface{}, error) {
+func (repo *ChatDBRepository) ReadChatByUserID(userID int) ([]domain.UserChat, error) {
 	return nil, nil
 }
 
-func (repo *ChatDBRepository) ReadChatByArtistID(artistID int) (interface{}, error) {
-	return nil, nil
+func (repo *ChatDBRepository) ReadChatByArtistID(artistID int) ([]domain.UserChat, error) {
+	chatList := []domain.UserChat{}
+	repo.DB.Where("artist_id = ?", artistID).Find(&chatList)
+	return chatList, nil
 }

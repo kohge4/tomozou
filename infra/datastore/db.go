@@ -24,5 +24,8 @@ func GormConn() (*gorm.DB, error) {
 	if !db.HasTable(&domain.UserToken{}) {
 		db.CreateTable(&domain.UserToken{})
 	}
+	if !db.HasTable(&domain.UserChat{}) {
+		db.CreateTable(&domain.UserChat{})
+	}
 	return db, nil
 }

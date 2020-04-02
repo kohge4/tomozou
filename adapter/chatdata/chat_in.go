@@ -21,9 +21,10 @@ type ChatIn struct {
 
 func (ch ChatIn) UserChat() (*domain.UserChat, error) {
 	chat := &domain.UserChat{
-		ID:       ch.ID,
-		Comment:  ch.Comment,
-		ArtistID: ch.ArtistID,
+		ID:        ch.ID,
+		Comment:   ch.Comment,
+		ArtistID:  ch.ArtistID,
+		CreatedAt: ch.CreatedAt,
 	}
 	return chat, nil
 }

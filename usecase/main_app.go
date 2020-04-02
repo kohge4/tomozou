@@ -44,18 +44,19 @@ func NewUserProfileApplication(uR domain.UserRepository, iR domain.ItemRepositor
 	}
 }
 
-func (u *UserProfileApplication) RegistryUser() error {
+func (u *UserProfileApplication) RegistryUser() (*domain.User, error) {
 	// アカウントを登録して User 情報を保存する
 	user, err := u.WebServiceAccount.User()
 	id, err := u.UserRepository.Save(*user)
+	user.ID = id
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = u.WebServiceAccount.SaveUserItem(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return user, nil
 }
 
 func (u *UserProfileApplication) ReRegistiryUser(id int) error {
@@ -117,7 +118,8 @@ func (u UserProfileApplication) MyUserArtistTag(id int) (interface{}, error) {
 	return tags, nil
 }
 
-func (u UserProfileApplication) DisplayUsersByArtist(artistID int) (interface{}, error) {
+// UserID から その UserIDの もつ artistID を　全部 検索する
+func (u UserProfileApplication) DisplayUsersByArtistID(artistID int) (interface{}, error) {
 	var users []domain.User
 	var user domain.User
 
@@ -132,3 +134,46 @@ func (u UserProfileApplication) DisplayUsersByArtist(artistID int) (interface{},
 	}
 	return users, nil
 }
+
+func (u UserProfileApplication) DisplayUsersByArtistName(artistName string) (interface{}, error) {
+	var users []domain.User
+	var user domain.User
+
+	// Userが tag が新しい順にソートされてる
+	userIDs, err := u.ItemRepository.ReadUserIDByArtistName(artistName)
+	for _, userID := range userIDs {
+		user, err = u.UserRepository.ReadByID(userID)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+/*
+// 実装開始　追加機能
+func (u UserProfileApplication) AddUserArtistTagComment(tagID int, comment string) (interface{}, error) {
+	var users []domain.User
+	var user domain.User
+
+	// Userが tag が新しい順にソートされてる
+	userIDs, err := u.ItemRepository.ReadUserIDByArtistName(tagID)
+	for _, userID := range userIDs {}
+		user, err = u.UserRepository.ReadByID(userID)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+*/
+
+func (u UserProfileApplication) AddUserArtistTagComment(tagID int, comment string) (interface{}, error) {
+	var users []domain.User
+
+	return users, nil
+}
+
+func (u UserProfileApplication) DisplayNumberOfUserArtistTag() {}

@@ -21,7 +21,7 @@ type User struct {
 func AuthUser() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
-		Key:         []byte("secret key"),
+		Key:         []byte("secretkey"),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
 		IdentityKey: "userid",
@@ -46,14 +46,15 @@ func AuthUser() *jwt.GinJWTMiddleware {
 			return claims[identityKey]
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			userID, _ := c.Get("tomozou-id")
+			userID, _ := c.Get("userid")
 			id, ok := userID.(int)
-			fmt.Println(id)
-			println(ok)
+
+			userName, _ := c.Get("user_name")
+			name, ok := userName.(string)
 			if ok == false {
 				return nil, nil
 			}
-			return &User{"test", "spotify", id}, nil
+			return &User{name, "spotify", id}, nil
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			//　得たデータを　実際に 認証する場所
@@ -85,8 +86,8 @@ func AuthUser() *jwt.GinJWTMiddleware {
 				"code":       http.StatusOK,
 				"token":      token,
 				"expire":     expire.Format(time.RFC3339),
-				"ID":         id,
-				"tomozou-id": tomozouID,
+				"id":         id,
+				"tomozou_id": tomozouID,
 				"url":        "http://localhost:8080/me",
 			})
 			// me の エンドポイントを 返せばOK

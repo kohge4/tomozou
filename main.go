@@ -43,7 +43,9 @@ func main() {
 	})
 	r.GET("/spotify/me", userProfileAppImpl.MyProfile)
 	r.GET("/spotify/myartist", userProfileAppImpl.MyArtist)
-	r.GET("/search/user/byartist", userProfileAppImpl.SearchUsersByArtist)
+
+	r.GET("/search/user/artistid/:artistID", userProfileAppImpl.SearchUsersByArtistID)
+	r.GET("/search/user/artistname", userProfileAppImpl.SearchUsersByArtistName)
 
 	auth := r.Group("/me")
 	// Refresh time can be longer than token timeout
@@ -81,6 +83,7 @@ func main() {
 	}
 	r.GET("/chat/room", chatAppImpl.DisplayChatRoom)
 	r.POST("/chat/user/comment", chatAppImpl.UserChat)
+	r.GET("/chat/list/:artistID", chatAppImpl.DisplayChatListByArtist)
 
 	r.Run(":8000")
 }

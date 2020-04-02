@@ -20,3 +20,11 @@ func (u *ChatApplication) UserComment(chat *domain.UserChat) {
 	u.ChatRepository.SaveChat(chat)
 	// display chat  が必要
 }
+
+func (u *ChatApplication) ChatListByArtistID(artistID int) ([]domain.UserChat, error) {
+	chat, err := u.ChatRepository.ReadChatByArtistID(artistID)
+	if err != nil {
+		return nil, err
+	}
+	return chat, nil
+}
