@@ -83,9 +83,12 @@ func main() {
 	chatAppImpl := handler.ChatApplicationImpl{
 		UseCase: chatApp,
 	}
-	r.GET("/chat/room", chatAppImpl.DisplayChatRoom)
-	r.POST("/chat/user/comment", chatAppImpl.UserChat)
-	r.GET("/chat/list/:artistID", chatAppImpl.DisplayChatListByArtist)
-
+	rChat := r.Group("/chat")
+	auth.Use(authMiddleware.MiddlewareFunc())
+	{
+		rChat.GET("/room", chatAppImpl.DisplayChatRoom)
+		rChat.POST("/user/comment", chatAppImpl.UserChat)
+		rChat.GET("/list/:artistID", chatAppImpl.DisplayChatListByArtist)
+	}
 	r.Run(":8000")
 }

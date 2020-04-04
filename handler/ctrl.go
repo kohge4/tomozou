@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -69,13 +68,9 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) MyProfile(c *gin.Context) {
-	id, _ := c.Get("userid")
-	userID, ok := id.(float64)
-	if ok == false {
-		c.String(403, "Authentication is failed")
-	}
-	if userID == 0 {
-		c.String(403, "Authentication is failed")
+	userID, err := getIDFromContext(c)
+	if err != nil {
+		c.String(403, err.Error())
 	}
 	me, err := u.UseCase.Me(int(userID))
 	if err != nil {
@@ -94,9 +89,10 @@ func (u *UserProfileApplicationImpl) MyProfile(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) MyChatList(c *gin.Context) {
-	id, _ := c.Get("tomozou-id")
-	userID, _ := id.(int)
-
+	userID, err := getIDFromContext(c)
+	if err != nil {
+		c.String(403, err.Error())
+	}
 	tag, err := u.UseCase.MyUserArtistTag(userID)
 	if err != nil {
 		return
@@ -109,8 +105,10 @@ func (u *UserProfileApplicationImpl) MyChatList(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) Me(c *gin.Context) {
-	id, _ := c.Get("userid")
-	userID, _ := id.(int)
+	userID, err := getIDFromContext(c)
+	if err != nil {
+		c.String(403, err.Error())
+	}
 	me, err := u.UseCase.DisplayMe(userID)
 	if err != nil {
 		c.String(403, err.Error())
@@ -119,20 +117,20 @@ func (u *UserProfileApplicationImpl) Me(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) MyArtist(c *gin.Context) {
-	id, _ := c.Get("tomozou-id")
-	userID, _ := id.(int)
-	myArtists, err := u.UseCase.MyArtistTag(1)
+	userID, err := getIDFromContext(c)
+	if err != nil {
+		c.String(403, err.Error())
+	}
+	myArtists, err := u.UseCase.MyArtistTag(userID)
 	if err != nil {
 		c.JSON(403, err.Error())
 	}
-	println(userID)
 	c.JSON(200, myArtists)
 }
 
 func (u *UserProfileApplicationImpl) SearchUsersByArtistID(c *gin.Context) {
 	artistID := c.Param("artistID")
 	id, _ := strconv.Atoi(artistID)
-	fmt.Println(id)
 
 	users, err := u.UseCase.DisplayUsersByArtistID(id)
 	if err != nil {

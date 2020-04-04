@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"tomozou/adapter/chatdata"
@@ -14,12 +13,6 @@ import (
 
 type ChatApplicationImpl struct {
 	UseCase usecase.ChatApplication
-}
-
-func (ch *ChatApplicationImpl) ChatList(c *gin.Context) {
-	id, _ := c.Get("tomozou-id")
-	userID, _ := id.(int)
-	println(userID)
 }
 
 func (ch *ChatApplicationImpl) UserChat(c *gin.Context) {
@@ -42,13 +35,15 @@ func (ch *ChatApplicationImpl) UserChat(c *gin.Context) {
 
 	cR := []domain.UserChat{*chat}
 	response, _ := chatResponse(cR)
-	fmt.Println(response)
 	c.JSON(200, response)
 }
 
 func (ch *ChatApplicationImpl) DisplayChatRoom(c *gin.Context) {
-	//userID, _ := c.Get("tomozou-id")
-	chatRooms, err := ch.UseCase.ChatRooms(1)
+	userID, err := getIDFromContext(c)
+	if err != nil {
+		c.String(403, err.Error())
+	}
+	chatRooms, err := ch.UseCase.ChatRooms(userID)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 	}

@@ -1,30 +1,21 @@
 package handler
 
-import "time"
+import (
+	"fmt"
 
-type Response struct {
-	Status int    `json:"status"`
-	URL    string `json:"url"`
-}
+	"github.com/gin-gonic/gin"
+)
 
-type MyProfileResponse struct {
-	Me      interface{} `json:"me"`
-	Artists interface{} `json:"artists"`
-	//TopArtists      interface{} `json:"top_artists"`
-	//FavoriteArtists interface{} `json:"favorite_artists"`
-}
-
-type ChatResponse struct {
-	ID        int       `json:"id"`
-	Comment   string    `json:"comment"`
-	Name      string    `json:"name"`
-	Image     string    `json:"image"`
-	UserID    int       `json:"user_id"`
-	ArtistID  int       `json:"artist_id"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-type MyChatListResponse struct {
-	Artists     interface{} `json:"artists"`
-	ArtistsInfo interface{} `json:"artists_info"`
+func getIDFromContext(c *gin.Context) (int, error) {
+	id, _ := c.Get("userid")
+	userID, ok := id.(float64)
+	if ok == false {
+		c.String(403, "Authentication is failed")
+		return 0, fmt.Errorf("Authentication is failed")
+	}
+	if userID == 0 {
+		c.String(403, "Authentication is failed")
+		return 0, fmt.Errorf("Authentication is failed")
+	}
+	return int(userID), nil
 }
