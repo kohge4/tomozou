@@ -62,11 +62,20 @@ func (h *SpotifyHandler) User() (*domain.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	var image string
+	images := me.Images
+	if len(images) == 0 {
+		image = "https://1.bp.blogspot.com/-ytFmslbH_nw/VufYbH7dO9I/AAAAAAAA43w/ds0JuKtPQVcai8to9nUb77g0pIp8iOT_w/s800/music_norinori_woman.png"
+	} else {
+		image = images[0].URL
+	}
+
 	user := domain.User{
 		SocialID: me.ID,
 		Name:     me.DisplayName,
 		Auth:     "spotify",
-		Image:    me.Images[0].URL,
+		Image:    image,
 	}
 	return &user, nil
 }
@@ -79,5 +88,16 @@ func (h *SpotifyHandler) SaveUserItem(userID int) error {
 	//h.saveRecentlyPlayedTracks(userID)
 	//h.saveTopTracks()
 	//h.saveNowPlayingTrack()
+	return nil
+}
+
+func (h *SpotifyHandler) UpdateUserItem(userID int) error {
+	// 最初に削除の コードを書く
+	// 大元の ID を 保持するか迷うね
+	h.updateUserToken(userID)
+
+	h.deleteUserArtistInfo(userID)
+	h.saveTopArtists(userID)
+	h.saveRecentlyFavoriteArtists(userID)
 	return nil
 }

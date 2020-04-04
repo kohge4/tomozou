@@ -105,3 +105,9 @@ func (repo *SpotifyItemDBRepository) ReadUserArtistTagByTagID(tagID int) (interf
 	repo.DB.Where("tag_id = ?", tagID).Find(&userArtistTags)
 	return userArtistTags, nil
 }
+
+func (repo *SpotifyItemDBRepository) DeleteAllUserArtistTagsByUserID(userID int) error {
+	tag := domain.UserArtistTag{}
+	repo.DB.Where("user_id LIKE ?", userID).Delete(&tag)
+	return nil
+}

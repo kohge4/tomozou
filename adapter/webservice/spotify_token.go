@@ -13,10 +13,20 @@ func (h *SpotifyHandler) saveUserToken(userID int) error {
 		return err
 	}
 	token := newUserToken(userID, "spotify", spToken)
-	if !h.DB.HasTable(&domain.UserToken{}) {
-		h.DB.CreateTable(&domain.UserToken{})
-	}
 	h.DB.Create(token)
+	return nil
+}
+
+func (h *SpotifyHandler) updateUserToken(userID int) error {
+	// 怪しい. あってるか確認してない
+	spToken, err := h.Client.Token()
+	if err != nil {
+		return err
+	}
+	userToken := &domain.UserToken{}
+	h.DB.Where("user_id = ?", userID).First(userToken)
+	userToken = updateUserToken(userToken, spToken)
+	h.DB.Save(userToken)
 	return nil
 }
 
@@ -34,4 +44,11 @@ func newUserToken(userID int, authType string, token *oauth2.Token) *domain.User
 		RefreshToken: token.RefreshToken,
 		Expiry:       token.Expiry,
 	}
+}
+
+func updateUserToken(userToken *domain.UserToken, token *oauth2.Token) *domain.UserToken {
+	userToken.AccessToken = token.AccessToken
+	userToken.RefreshToken = token.RefreshToken
+	userToken.Expiry = token.Expiry
+	return userToken
 }

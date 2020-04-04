@@ -22,8 +22,6 @@ func (h *SpotifyHandler) saveTopArtists(userID int) error {
 		var artist *domain.Artist
 
 		artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
-		println("CCCHHEEC")
-		println(artist)
 		if artist == nil {
 			artist = &domain.Artist{
 				Name:     result.Name,
@@ -84,6 +82,15 @@ func (h *SpotifyHandler) saveRecentlyFavoriteArtists(userID int) error {
 			Image:      result.Images[0].URL,
 		}
 		h.SpotifyRepository.SaveUserArtistTag(tag)
+	}
+	return nil
+}
+
+func (h *SpotifyHandler) deleteUserArtistInfo(userID int) error {
+	//h.SpotifyRepository.DeleteAllArtitByUserID(userID)
+	err := h.SpotifyRepository.DeleteAllUserArtistTagsByUserID(userID)
+	if err != nil {
+		return err
 	}
 	return nil
 }

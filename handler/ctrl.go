@@ -34,16 +34,22 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 	}
 	u.Handler.Client = u.Handler.Authenticator.NewClient(accessToken)
 
+	// ここで UseCase に切り替える
 	u.UseCase.WebServiceAccount = u.Handler.ConvertWebServiceAccountImpl()
 
-	duplicateUser, err := u.UseCase.CheckDuplicateUser()
+	existingUser, err := u.UseCase.CheckExistingUser()
 	if err != nil {
 		c.String(403, err.Error())
 	}
-	if duplicateUser != nil {
+	if existingUser != nil {
 		// すでに そのサービスでログインしたことあるユーザーの場合
-		c.Set("userid", duplicateUser.ID)
-		c.Set("user_name", duplicateUser.Name)
+		c.Set("userid", existingUser.ID)
+		c.Set("user_name", existingUser.Name)
+
+		err = u.UseCase.UpdateUser(existingUser.ID)
+		if err != nil {
+			c.String(403, err.Error())
+		}
 		u.AuthMiddleware.LoginHandler(c)
 		return
 	}
@@ -54,9 +60,11 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 	}
 	c.Set("userid", user.ID)
 	c.Set("user_name", user.Name)
-	fmt.Println("UserCheck")
-	println(user.Name)
-	println(user.ID)
+	/*
+		fmt.Println("UserCheck")
+		println(user.Name)
+		println(user.ID)
+	*/
 	u.AuthMiddleware.LoginHandler(c)
 }
 
@@ -67,7 +75,7 @@ func (u *UserProfileApplicationImpl) MyProfile(c *gin.Context) {
 		c.String(403, "Authentication is failed")
 	}
 	if userID == 0 {
-		userID = 1
+		c.String(403, "Authentication is failed")
 	}
 	me, err := u.UseCase.Me(int(userID))
 	if err != nil {
@@ -81,8 +89,6 @@ func (u *UserProfileApplicationImpl) MyProfile(c *gin.Context) {
 	response := MyProfileResponse{
 		Me:      me,
 		Artists: tag,
-		//TopArtists:      tag,
-		//FavoriteArtists: tag,
 	}
 	c.JSON(200, response)
 }
@@ -146,19 +152,4 @@ func (u *UserProfileApplicationImpl) SearchUsersByArtistName(c *gin.Context) {
 
 func (u *UserProfileApplicationImpl) MyTrack(c *gin.Context) {
 
-}
-
-func corsMiddleware(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
-	c.Writer.Header().Set("Access-Control-Max-Age", "86400")
-	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
-	c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-	c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
-	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-
-	if c.Request.Method == "OPTIONS" {
-		c.AbortWithStatus(200)
-	} else {
-		c.Next()
-	}
 }

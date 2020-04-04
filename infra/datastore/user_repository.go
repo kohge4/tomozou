@@ -27,6 +27,12 @@ func (repo *UserDBRepository) Save(user domain.User) (int, error) {
 	return user.ID, nil
 }
 
+func (repo *UserDBRepository) Update(id int) (domain.User, error) {
+	user := domain.User{}
+	repo.DB.Where("ID = ?", id).Find(&user)
+	return user, nil
+}
+
 func (repo *UserDBRepository) ReadAll() []domain.User {
 	users := []domain.User{}
 	repo.DB.Find(&users)
@@ -39,9 +45,9 @@ func (repo *UserDBRepository) ReadBySocialID(socialID string) ([]domain.User, er
 	return users, nil
 }
 
-func (repo *UserDBRepository) ReadByID(ID int) (domain.User, error) {
+func (repo *UserDBRepository) ReadByID(id int) (domain.User, error) {
 	user := domain.User{}
-	repo.DB.Where("ID = ?", ID).Find(&user)
+	repo.DB.Where("ID = ?", id).Find(&user)
 	return user, nil
 }
 

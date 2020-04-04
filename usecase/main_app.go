@@ -59,7 +59,7 @@ func (u *UserProfileApplication) RegistryUser() (*domain.User, error) {
 	return user, nil
 }
 
-func (u *UserProfileApplication) CheckDuplicateUser() (*domain.User, error) {
+func (u *UserProfileApplication) CheckExistingUser() (*domain.User, error) {
 	// すでに 連携したことのあるユーザーの場合 他の処理にする
 	user, err := u.WebServiceAccount.User()
 	if err != nil {
@@ -75,18 +75,18 @@ func (u *UserProfileApplication) CheckDuplicateUser() (*domain.User, error) {
 	return &socialUsers[0], nil
 }
 
-func (u *UserProfileApplication) ReRegistiryUser(id int) error {
+func (u *UserProfileApplication) UpdateUser(id int) error {
 	// 任意の User の アカウントを 再連携して, 情報を更新する
-	// Token を 外からひっぱてくる処理をかく
-	user, err := u.UserRepository.ReadByID(id)
+	_, err := u.UserRepository.Update(id)
 	if err != nil {
+		// 最終更新日みたいなのを登録できるようにしたい
 		return err
 	}
-	err = u.WebServiceAccount.Link(user)
-	if err != nil {
-		return err
-	}
-	err = u.WebServiceAccount.SaveUserItem(id)
+	/*
+		UpdateUserItem は 過去の情報を多少保持しておいたほうがいいかも
+		回数とか記録しときたい気もする
+	*/
+	err = u.WebServiceAccount.UpdateUserItem(id)
 	if err != nil {
 		return err
 	}
