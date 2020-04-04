@@ -37,17 +37,18 @@ func main() {
 	crs.AllowHeaders = []string{"Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"}
 	r.Use(cors.New(crs))
 
-	r.GET("/spotify/callback", userProfileAppImpl.Callback)
-	r.GET("/spotify/login", userProfileAppImpl.Login)
-	r.GET("/spotify/top", func(c *gin.Context) {
-		c.String(200, "OkSpotify")
-	})
-	r.GET("/spotify/me", userProfileAppImpl.MyProfile)
-	r.GET("/spotify/myartist", userProfileAppImpl.MyArtist)
-
 	r.GET("/search/user/artistid/:artistID", userProfileAppImpl.SearchUsersByArtistID)
 	r.GET("/search/user/artistname", userProfileAppImpl.SearchUsersByArtistName)
 
+	// Spotify ログイン処理用エンドポイント
+	rSpo := r.Group("/spotify")
+	{
+		rSpo.GET("/callback", userProfileAppImpl.Callback)
+		rSpo.GET("/login", userProfileAppImpl.Login)
+		rSpo.GET("/myartist", userProfileAppImpl.MyArtist)
+	}
+
+	// 認証用エンドポイント: JWTの検証を毎回行う
 	auth := r.Group("/me")
 	// Refresh time can be longer than token timeout
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
@@ -56,18 +57,22 @@ func main() {
 		auth.GET("/profile", userProfileAppImpl.MyProfile)
 	}
 
+	// 開発用: データ確認エンドポイント
 	devUserRepo := datastore.NewDevUserRepo(gormConn)
-	r.GET("/dev/user", func(c *gin.Context) {
-		users, _ := devUserRepo.CheckUser()
-		c.JSON(200, users)
-	})
-	r.GET("/dev/tag", func(c *gin.Context) {
-		tags := []domain.UserArtistTag{}
-		devUserRepo.DB.Find(&tags)
-		c.JSON(200, tags)
-	})
-	r.GET("/dev/userdata", func(c *gin.Context) {
-	})
+	rDev := r.Group("/dev")
+	{
+		rDev.GET("/user", func(c *gin.Context) {
+			users, _ := devUserRepo.CheckUser()
+			c.JSON(200, users)
+		})
+		rDev.GET("/tag", func(c *gin.Context) {
+			tags := []domain.UserArtistTag{}
+			devUserRepo.DB.Find(&tags)
+			c.JSON(200, tags)
+		})
+		rDev.GET("/userdata", func(c *gin.Context) {
+		})
+	}
 
 	// Chat 用: authによるJWT 以下から
 	chatRepo := datastore.NewChatDBRepository(gormConn)
