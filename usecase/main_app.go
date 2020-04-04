@@ -59,6 +59,22 @@ func (u *UserProfileApplication) RegistryUser() (*domain.User, error) {
 	return user, nil
 }
 
+func (u *UserProfileApplication) CheckDuplicateUser() (*domain.User, error) {
+	// すでに 連携したことのあるユーザーの場合 他の処理にする
+	user, err := u.WebServiceAccount.User()
+	if err != nil {
+		return nil, err
+	}
+	socialUsers, err := u.UserRepository.ReadBySocialID(user.SocialID)
+	if err != nil {
+		return nil, err
+	}
+	if len(socialUsers) == 0 {
+		return nil, nil
+	}
+	return &socialUsers[0], nil
+}
+
 func (u *UserProfileApplication) ReRegistiryUser(id int) error {
 	// 任意の User の アカウントを 再連携して, 情報を更新する
 	// Token を 外からひっぱてくる処理をかく

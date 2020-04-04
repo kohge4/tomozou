@@ -34,6 +34,7 @@ func main() {
 
 	crs := cors.DefaultConfig()
 	crs.AllowOrigins = []string{"http://localhost:8080", "https://tomozoufront.firebaseapp.com"}
+	crs.AllowHeaders = []string{"Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization"}
 	r.Use(cors.New(crs))
 
 	r.GET("/spotify/callback", userProfileAppImpl.Callback)
@@ -52,10 +53,6 @@ func main() {
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
-		auth.GET("/hello", func(c *gin.Context) {
-			data, _ := c.Get("id")
-			c.JSON(200, data)
-		})
 		auth.GET("/profile", userProfileAppImpl.MyProfile)
 	}
 

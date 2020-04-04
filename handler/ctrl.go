@@ -35,6 +35,19 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 	u.Handler.Client = u.Handler.Authenticator.NewClient(accessToken)
 
 	u.UseCase.WebServiceAccount = u.Handler.ConvertWebServiceAccountImpl()
+
+	duplicateUser, err := u.UseCase.CheckDuplicateUser()
+	if err != nil {
+		c.String(403, err.Error())
+	}
+	if duplicateUser != nil {
+		// すでに そのサービスでログインしたことあるユーザーの場合
+		c.Set("userid", duplicateUser.ID)
+		c.Set("user_name", duplicateUser.Name)
+		u.AuthMiddleware.LoginHandler(c)
+		return
+	}
+
 	user, err := u.UseCase.RegistryUser()
 	if err != nil {
 		c.String(403, err.Error())
@@ -48,17 +61,19 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) MyProfile(c *gin.Context) {
-	id, _ := c.Get("tomozou-id")
-	userID, _ := id.(int)
-
+	id, _ := c.Get("userid")
+	userID, ok := id.(float64)
+	if ok == false {
+		c.String(403, "Authentication is failed")
+	}
 	if userID == 0 {
 		userID = 1
 	}
-	me, err := u.UseCase.Me(userID)
+	me, err := u.UseCase.Me(int(userID))
 	if err != nil {
 		c.String(403, err.Error())
 	}
-	tag, err := u.UseCase.MyUserArtistTag(userID)
+	tag, err := u.UseCase.MyUserArtistTag(int(userID))
 	if err != nil {
 		return
 	}
@@ -88,7 +103,7 @@ func (u *UserProfileApplicationImpl) MyChatList(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) Me(c *gin.Context) {
-	id, _ := c.Get("tomozou-id")
+	id, _ := c.Get("userid")
 	userID, _ := id.(int)
 	me, err := u.UseCase.DisplayMe(userID)
 	if err != nil {
@@ -131,4 +146,19 @@ func (u *UserProfileApplicationImpl) SearchUsersByArtistName(c *gin.Context) {
 
 func (u *UserProfileApplicationImpl) MyTrack(c *gin.Context) {
 
+}
+
+func corsMiddleware(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+	c.Writer.Header().Set("Access-Control-Max-Age", "86400")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, UPDATE")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	c.Writer.Header().Set("Access-Control-Expose-Headers", "Content-Length")
+	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	if c.Request.Method == "OPTIONS" {
+		c.AbortWithStatus(200)
+	} else {
+		c.Next()
+	}
 }

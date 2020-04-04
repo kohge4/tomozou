@@ -43,6 +43,9 @@ func AuthUser() *jwt.GinJWTMiddleware {
 			claims := jwt.ExtractClaims(c)
 			c.Set(identityKey, claims[identityKey])
 			//claims[identityKey].(int)
+			println("kekekekekeyyyy")
+			println(identityKey)
+			println(claims[identityKey])
 			return claims[identityKey]
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -63,6 +66,7 @@ func AuthUser() *jwt.GinJWTMiddleware {
 				if v, ok := data.(*User); ok && v.UserName == "admin" {
 					return true
 				}*/
+			//userID, _ := c.Get(identityKey)
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
@@ -79,9 +83,9 @@ func AuthUser() *jwt.GinJWTMiddleware {
 			id, _ := c.Get(identityKey)
 			*/
 			fmt.Println(token)
-			id, _ := c.Get("tomozou-id")
+			id, _ := c.Get("userid")
+			tomozouID, _ := c.Get("userid")
 
-			tomozouID, _ := c.Get("tomozou-id")
 			c.JSON(http.StatusOK, gin.H{
 				"code":       http.StatusOK,
 				"token":      token,
