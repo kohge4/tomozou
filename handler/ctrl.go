@@ -104,24 +104,12 @@ func (u *UserProfileApplicationImpl) MyChatList(c *gin.Context) {
 	c.JSON(200, response)
 }
 
-func (u *UserProfileApplicationImpl) Me(c *gin.Context) {
-	userID, err := getIDFromContext(c)
-	if err != nil {
-		c.String(403, err.Error())
-	}
-	me, err := u.UseCase.DisplayMe(userID)
-	if err != nil {
-		c.String(403, err.Error())
-	}
-	c.JSON(200, me)
-}
-
 func (u *UserProfileApplicationImpl) MyArtist(c *gin.Context) {
 	userID, err := getIDFromContext(c)
 	if err != nil {
 		c.String(403, err.Error())
 	}
-	myArtists, err := u.UseCase.MyArtistTag(userID)
+	myArtists, err := u.UseCase.MyUserArtistTag(userID)
 	if err != nil {
 		c.JSON(403, err.Error())
 	}

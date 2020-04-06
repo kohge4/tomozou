@@ -4,24 +4,6 @@ import (
 	"tomozou/domain"
 )
 
-//
-/*
-必要な機能を書き出す
-
-LoginしたUser
-	UserProfile の編集
-	ログイン状態 の変更
-	再連携social service の 情報 表示
-
-User 全体
-
-application として必要な機能
-*/
-
-/*
-認証の 抽象化 難しい
-*/
-
 /*
 認証以外の Usecase
 User の 情報を 保存(Login 情報に基づき)
@@ -99,31 +81,6 @@ func (u *UserProfileApplication) Me(id int) (interface{}, error) {
 		return nil, err
 	}
 	return me, nil
-}
-
-func (u *UserProfileApplication) DisplayMe(id int) (interface{}, error) {
-	artists, err := u.ItemRepository.ReadItemByUser(id)
-	if err != nil {
-		return nil, err
-	}
-	return artists, nil
-}
-
-func (u *UserProfileApplication) MyArtistTag(id int) (interface{}, error) {
-	artistTags, err := u.ItemRepository.ReadUserArtistTagByUserID(id)
-	if err != nil {
-		return nil, err
-	}
-	return artistTags, nil
-}
-
-func (u *UserProfileApplication) DisplayContent(id int) (interface{}, error) {
-	// Controller で id を token から 持ってくる
-	item, err := u.ItemRepository.ReadItemByUser(id)
-	if err != nil {
-		return nil, err
-	}
-	return item, nil
 }
 
 func (u UserProfileApplication) MyUserArtistTag(id int) (interface{}, error) {
