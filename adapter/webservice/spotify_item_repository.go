@@ -1,6 +1,7 @@
 package webservice
 
 import (
+	"fmt"
 	"tomozou/domain"
 
 	"github.com/kohge4/spotify"
@@ -95,11 +96,96 @@ func (h *SpotifyHandler) deleteUserArtistInfo(userID int) error {
 	return nil
 }
 
+/*
 func (h *SpotifyHandler) saveRecentlyPlayedTracks(useraID int) error {
+	// あとで
+	//timerange := "short"
+	limit := 5
+	opt := &spotify.RecentlyPlayedOptions{
+		//Timerange: &timerange,
+		Limit: limit,
+	}
+
+	results, err := h.Client.PlayerRecentlyPlayedOpt(opt)
+	if err != nil {
+		return err
+	}
+	/*
+		for _, result := range results.Items {
+			var artist *domain.Artist
+
+			artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
+			if artist == nil {
+				artist = &domain.Artist{
+					Name:     result.Name,
+					SocialID: result.ID,
+					Image:    result.Images[0].URL,
+				}
+				artist.ID, err = h.SpotifyRepository.SaveArtist(*artist)
+				if err != nil {
+					return err
+				}
+			}
+			tag := domain.UserArtistTag{
+				UserID:     userID,
+				ArtistID:   artist.ID,
+				TagName:    "recently_favorite_artist",
+				ArtistName: result.Name,
+				URL:        result.ExternalUrls.Spotify,
+				Image:      result.Images[0].URL,
+			}
+			h.SpotifyRepository.SaveUserArtistTag(tag)
+		}
 	return nil
 }
+*/
 
-func (h *SpotifyHandler) saveTopTracks() error {
+func (h *SpotifyHandler) saveTopTracks(userID int) error {
+	/*
+		trackのデータを取得
+		artist データがなければ追加 => artist保存
+		trackの保存データに変換
+	*/
+	timerange := "short"
+	limit := 5
+	opt := &spotify.Options{
+		Timerange: &timerange,
+		Limit:     &limit,
+	}
+
+	results, err := h.Client.GetUserTopTracks2Opt(opt)
+	if err != nil {
+		return err
+	}
+	println("TTTTTrack")
+	fmt.Println(results.Items)
+	/*
+		for _, result := range results.Items {
+			var artist *domain.Artist
+
+			artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
+			if artist == nil {
+				artist = &domain.Artist{
+					Name:     result.Name,
+					SocialID: result.ID,
+					Image:    result.Album.Images[0].URL,
+				}
+				artist.ID, err = h.SpotifyRepository.SaveArtist(*artist)
+				if err != nil {
+					return err
+				}
+			}
+			tag := domain.UserArtistTag{
+				UserID:     userID,
+				ArtistID:   artist.ID,
+				TagName:    "recently_favorite_artist",
+				ArtistName: result.Name,
+				URL:        result.ExternalUrls.Spotify,
+				Image:      result.Album.Images[0].URL,
+			}
+			h.SpotifyRepository.SaveUserArtistTag(tag)
+		}
+	*/
 	return nil
 }
 

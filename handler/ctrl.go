@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -32,6 +33,8 @@ func (u *UserProfileApplicationImpl) Callback(c *gin.Context) {
 		return
 	}
 	u.Handler.Client = u.Handler.Authenticator.NewClient(accessToken)
+	fmt.Println("accessToken")
+	fmt.Println(accessToken.AccessToken)
 
 	// ここで UseCase に切り替える
 	u.UseCase.WebServiceAccount = u.Handler.ConvertWebServiceAccountImpl()

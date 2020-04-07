@@ -86,7 +86,7 @@ func (h *SpotifyHandler) SaveUserItem(userID int) error {
 	h.saveTopArtists(userID)
 	h.saveRecentlyFavoriteArtists(userID)
 	//h.saveRecentlyPlayedTracks(userID)
-	//h.saveTopTracks()
+	h.saveTopTracks(userID)
 	//h.saveNowPlayingTrack()
 	return nil
 }
@@ -100,4 +100,20 @@ func (h *SpotifyHandler) UpdateUserItem(userID int) error {
 	h.saveTopArtists(userID)
 	h.saveRecentlyFavoriteArtists(userID)
 	return nil
+}
+
+func (h *SpotifyHandler) DebugItem(userID int) interface{} {
+	h.saveTopTracks(userID)
+	timerange := "short"
+	limit := 5
+	opt := &spotify.Options{
+		Timerange: &timerange,
+		Limit:     &limit,
+	}
+
+	results, err := h.Client.GetUserTopTracks2Opt(opt)
+	if err != nil {
+		return err
+	}
+	return results
 }

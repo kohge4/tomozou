@@ -72,6 +72,7 @@ func main() {
 		})
 		rDev.GET("/userdata", func(c *gin.Context) {
 		})
+		rDev.GET("/debug", userProfileAppImpl.Debug)
 	}
 
 	// Chat 用: authによるJWT 以下から
@@ -84,7 +85,7 @@ func main() {
 		UseCase: chatApp,
 	}
 	rChat := r.Group("/chat")
-	auth.Use(authMiddleware.MiddlewareFunc())
+	rChat.Use(authMiddleware.MiddlewareFunc())
 	{
 		rChat.GET("/room", chatAppImpl.DisplayChatRoom)
 		rChat.POST("/user/comment", chatAppImpl.UserChat)

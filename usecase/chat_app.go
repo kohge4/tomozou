@@ -18,7 +18,6 @@ func (u *ChatApplication) ChatRooms(userID int) (interface{}, error) {
 
 func (u *ChatApplication) UserComment(chat *domain.UserChat) {
 	u.ChatRepository.SaveChat(chat)
-	// display chat  が必要
 }
 
 func (u *ChatApplication) ChatListByArtistID(artistID int) ([]domain.UserChat, error) {
