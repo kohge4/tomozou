@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"tomozou/infra/settings"
+	"tomozou/settings"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"

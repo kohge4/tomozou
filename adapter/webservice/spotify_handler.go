@@ -2,7 +2,7 @@ package webservice
 
 import (
 	"tomozou/domain"
-	"tomozou/infra/settings"
+	"tomozou/settings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/kohge4/spotify"
