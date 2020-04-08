@@ -19,3 +19,11 @@ func getIDFromContext(c *gin.Context) (int, error) {
 	}
 	return int(userID), nil
 }
+
+func embedTrackURLFromSopotifyID() {}
+
+func embedArtistURLFromSopotifyID() {}
+
+func embedTrackURLFromAppleID() {}
+
+func embedArtistURLFromAppleID() {}

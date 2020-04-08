@@ -157,39 +157,71 @@ func (h *SpotifyHandler) saveTopTracks(userID int) error {
 	if err != nil {
 		return err
 	}
-	println("TTTTTrack")
-	fmt.Println(results.Items)
-	/*
-		for _, result := range results.Items {
-			var artist *domain.Artist
+	for _, result := range results.Items {
+		var artist *domain.Artist
+		var track *domain.Track
+		println(track)
 
-			artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
-			if artist == nil {
-				artist = &domain.Artist{
-					Name:     result.Name,
-					SocialID: result.ID,
-					Image:    result.Album.Images[0].URL,
-				}
-				artist.ID, err = h.SpotifyRepository.SaveArtist(*artist)
-				if err != nil {
-					return err
-				}
-			}
-			tag := domain.UserArtistTag{
-				UserID:     userID,
-				ArtistID:   artist.ID,
-				TagName:    "recently_favorite_artist",
-				ArtistName: result.Name,
-				URL:        result.ExternalUrls.Spotify,
-				Image:      result.Album.Images[0].URL,
-			}
-			h.SpotifyRepository.SaveUserArtistTag(tag)
+		artists := result.Album.Artists
+		println(artists)
+		// album の 配列
+		trackName := result.Album.Name
+		println(trackName)
+		track = &domain.Track{
+			Name:     result.Album.Name,
+			TrackURL: result.Album.Href,
+			SocialID: result.Album.ID,
 		}
-	*/
+		// 複数の arthist が 携わるトラックの場合の処理
+		// corrywong の cosmic sans を 聞いて nowplaying の処理とともに 確認
+
+		artist, _ = h.SpotifyRepository.ReadArtistBySocialID(result.ID)
+		if artist == nil {
+			artist = &domain.Artist{
+				Name:     result.Name,
+				SocialID: result.ID,
+				Image:    result.Album.Images[0].URL,
+			}
+			artist.ID, err = h.SpotifyRepository.SaveArtist(*artist)
+			if err != nil {
+				return err
+			}
+		}
+		tag := domain.UserArtistTag{
+			UserID:     userID,
+			ArtistID:   artist.ID,
+			TagName:    "recently_favorite_artist",
+			ArtistName: result.Name,
+			URL:        result.ExternalUrls.Spotify,
+			Image:      result.Album.Images[0].URL,
+		}
+		h.SpotifyRepository.SaveUserArtistTag(tag)
+	}
 	return nil
 }
 
 func (h *SpotifyHandler) saveNowPlayingTrack() error {
+	var track *spotify.SimpleTrack
+
+	nowPlaying, err := h.Client.PlayerCurrentlyPlaying()
+	if err != nil {
+		return err
+	}
+
+	if nowPlaying.Item != nil {
+		track = nowPlaying.Item.ToSimpleTrack()
+	} else {
+		recentlyPlaying, err := h.Client.PlayerRecentlyPlayed()
+		if err != nil {
+			return err
+		}
+		track = &recentlyPlaying[0].Track
+	}
+	fmt.Println(track)
+	// Track 保存に関する処理
+	// SimpleTrack を変換 => artist を保存 => tagとして track に持たせる
+	trackIn := SimpleTrackToTrack(track)
+	h.SpotifyRepository.SaveTrack(*trackIn)
 	return nil
 }
 

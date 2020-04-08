@@ -9,6 +9,7 @@ import (
 	"tomozou/usecase"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 type ChatApplicationImpl struct {
@@ -25,11 +26,13 @@ func (ch *ChatApplicationImpl) UserChat(c *gin.Context) {
 	err := json.Unmarshal(jsonByte, &chatIn)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
+		log.Debug().Msg("ERROR: " + err.Error())
 	}
 
 	chat, err := chatIn.UserChat()
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
+		log.Debug().Msg("ERROR: " + err.Error())
 	}
 	ch.UseCase.UserComment(chat)
 

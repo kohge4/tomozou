@@ -38,7 +38,7 @@ func (repo *SpotifyItemDBRepository) SaveArtist(artist domain.Artist) (int, erro
 	return artist.ID, nil
 }
 
-func (repo *SpotifyItemDBRepository) SaveTrack(domain.Track) (int, error) {
+func (repo *SpotifyItemDBRepository) SaveTrack(track domain.Track) (int, error) {
 	return 0, nil
 }
 

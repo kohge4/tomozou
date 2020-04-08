@@ -2,6 +2,7 @@ package webservice
 
 import (
 	"tomozou/domain"
+	"tomozou/infra/settings"
 
 	"github.com/jinzhu/gorm"
 	"github.com/kohge4/spotify"
@@ -10,11 +11,11 @@ import (
 )
 
 const (
-	//redirectSpotifyURL = "http://localhost:8000/spotify/callback"
-	redirectSpotifyURL = "http://localhost:8080/spotify/callback"
-	state              = "secret"
-	clientID           = "08ad2a3fa89349eabb5b2e9929946b27"
-	secretKey          = "10c3f63b95dc4af887ed5f0779a8df6a"
+	redirectSpotifyURL = settings.FrontURL + "spotify/callback"
+	//redirectSpotifyURL = "http://localhost:8080/spotify/callback"
+	state     = "secret"
+	clientID  = "08ad2a3fa89349eabb5b2e9929946b27"
+	secretKey = "10c3f63b95dc4af887ed5f0779a8df6a"
 )
 
 type SpotifyHandler struct {
@@ -103,17 +104,46 @@ func (h *SpotifyHandler) UpdateUserItem(userID int) error {
 }
 
 func (h *SpotifyHandler) DebugItem(userID int) interface{} {
-	h.saveTopTracks(userID)
-	timerange := "short"
-	limit := 5
-	opt := &spotify.Options{
-		Timerange: &timerange,
-		Limit:     &limit,
-	}
+	/*
+		//h.saveTopTracks(userID)
+		timerange := "short"
+		limit := 2
+		opt := &spotify.Options{
+			Timerange: &timerange,
+			Limit:     &limit,
+		}
+		// options がうまくいってなかった
+		results, err := h.Client.GetUserTopTracks2Opt(opt)
+		if err != nil {
+			return err
+		}
+		fmt.Println(*opt)
+	*/
+	/*
+		results, err := h.Client.PlayerRecentlyPlayed()
+		if err != nil {
+			return err
+		}
+	*/
+	var track *spotify.SimpleTrack
 
-	results, err := h.Client.GetUserTopTracks2Opt(opt)
+	results, err := h.Client.PlayerCurrentlyPlaying()
 	if err != nil {
 		return err
 	}
-	return results
+	if results.Item == nil {
+		recentlyPlaying, err := h.Client.PlayerRecentlyPlayed()
+		if err != nil {
+			return err
+		}
+		track = &recentlyPlaying[0].Track
+	} else {
+		nowPlaying, err := h.Client.PlayerCurrentlyPlaying()
+		if err != nil {
+			return err
+		}
+		track = nowPlaying.Item.ToSimpleTrack()
+	}
+
+	return track
 }

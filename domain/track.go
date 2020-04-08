@@ -7,5 +7,5 @@ type Track struct {
 	TrackURL string
 
 	ArtistName string
-	ArtistID   int
+	ArtistID   string
 }

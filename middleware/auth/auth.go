@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"tomozou/infra/settings"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +21,7 @@ type User struct {
 }
 
 func AuthUser() *jwt.GinJWTMiddleware {
+	// spotify 関連の処理を 外部注入できるように
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secretkey"),
@@ -92,7 +95,8 @@ func AuthUser() *jwt.GinJWTMiddleware {
 				"expire":     expire.Format(time.RFC3339),
 				"id":         id,
 				"tomozou_id": tomozouID,
-				"url":        "http://localhost:8080/me",
+				"url":        settings.FrontURL + "me",
+				//"url":        "http://localhost:8080/me",
 			})
 			// me の エンドポイントを 返せばOK
 		},
