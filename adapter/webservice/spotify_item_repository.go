@@ -1,7 +1,6 @@
 package webservice
 
 import (
-	"fmt"
 	"tomozou/domain"
 
 	"github.com/kohge4/spotify"
@@ -162,10 +161,6 @@ func (h *SpotifyHandler) saveTopTracks(userID int) error {
 		var trackIn *domain.Track
 
 		artists := result.Album.Artists
-		println(artists)
-		// album の 配列
-		trackName := result.Name
-		println(trackName)
 
 		artistIn, _ = h.SpotifyRepository.ReadArtistBySocialID(artists[0].ID)
 		if artistIn == nil {
@@ -194,11 +189,15 @@ func (h *SpotifyHandler) saveTopTracks(userID int) error {
 		// 複数の arthist が 携わるトラックの場合の処理
 		// corrywong の cosmic sans を 聞いて nowplaying の処理とともに 確認
 	}
+	// UserTrack Tag の 保存も必要 そのための userID
 	return nil
 }
 
 func (h *SpotifyHandler) saveNowPlayingTrack() error {
 	var track *spotify.SimpleTrack
+
+	var artistIn *domain.Artist
+	var trackIn *domain.Track
 
 	nowPlaying, err := h.Client.PlayerCurrentlyPlaying()
 	if err != nil {
@@ -214,11 +213,31 @@ func (h *SpotifyHandler) saveNowPlayingTrack() error {
 		}
 		track = &recentlyPlaying[0].Track
 	}
-	fmt.Println(track)
+	artists := track.Artists
+
+	artistIn, _ = h.SpotifyRepository.ReadArtistBySocialID(artists[0].ID.String())
+	if artistIn == nil {
+		artistIn = &domain.Artist{
+			Name:     track.Artists[0].Name,
+			SocialID: track.Artists[0].ID.String(),
+			Image:    "",
+		}
+		artistIn.ID, err = h.SpotifyRepository.SaveArtist(*artistIn)
+		if err != nil {
+			return err
+		}
+	}
+	trackIn = &domain.Track{
+		Name: track.Name,
+		// TrackURL ではなくsocialID で url作る方針
+		SocialID:   track.ID.String(),
+		ArtistName: artistIn.Name,
+		ArtistID:   artistIn.ID,
+	}
 	// Track 保存に関する処理
 	// SimpleTrack を変換 => artist を保存 => tagとして track に持たせる
-	trackIn := SimpleTrackToTrack(h, track)
 	h.SpotifyRepository.SaveTrack(*trackIn)
+	// この後に Tag の 保存も必要  そのための userID
 	return nil
 }
 
