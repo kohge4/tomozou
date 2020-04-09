@@ -100,6 +100,8 @@ func (h *SpotifyHandler) UpdateUserItem(userID int) error {
 	h.deleteUserArtistInfo(userID)
 	h.saveTopArtists(userID)
 	h.saveRecentlyFavoriteArtists(userID)
+
+	h.saveTopTracks(userID)
 	return nil
 }
 

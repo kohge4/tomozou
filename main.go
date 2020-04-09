@@ -71,9 +71,9 @@ func main() {
 			c.JSON(200, tags)
 		})
 		rDev.GET("/track", func(c *gin.Context) {
-			tracks := []domain.Track{}
-			devUserRepo.DB.Find(&tracks)
-			c.JSON(200, tracks)
+			track := []domain.Track{}
+			devUserRepo.DB.Find(&track)
+			c.JSON(200, track)
 		})
 		rDev.GET("/userdata", func(c *gin.Context) {
 		})

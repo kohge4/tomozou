@@ -10,7 +10,6 @@ func SimpleTrackToTrack(h *SpotifyHandler, simpleTrack *spotify.SimpleTrack) *do
 	return &domain.Track{
 		SocialID:   simpleTrack.ID.String(),
 		Name:       simpleTrack.Name,
-		TrackURL:   simpleTrack.ExternalURLs["spotify"],
 		ArtistName: simpleTrack.Artists[0].Name,
 		ArtistID:   ArtistIDFromSpotifyID(h, simpleTrack.Artists[0].ID.String()),
 	}
