@@ -220,7 +220,7 @@ func (h *SpotifyHandler) saveNowPlayingTrack() error {
 	fmt.Println(track)
 	// Track 保存に関する処理
 	// SimpleTrack を変換 => artist を保存 => tagとして track に持たせる
-	trackIn := SimpleTrackToTrack(track)
+	trackIn := SimpleTrackToTrack(h, track)
 	h.SpotifyRepository.SaveTrack(*trackIn)
 	return nil
 }

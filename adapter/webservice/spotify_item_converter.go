@@ -6,13 +6,13 @@ import (
 	"github.com/kohge4/spotify"
 )
 
-func SimpleTrackToTrack(simpleTrack *spotify.SimpleTrack) *domain.Track {
+func SimpleTrackToTrack(h *SpotifyHandler, simpleTrack *spotify.SimpleTrack) *domain.Track {
 	return &domain.Track{
 		SocialID:   simpleTrack.ID.String(),
 		Name:       simpleTrack.Name,
 		TrackURL:   simpleTrack.ExternalURLs["spotify"],
 		ArtistName: simpleTrack.Artists[0].Name,
-		ArtistID:   simpleTrack.Artists[0].ID.String(),
+		ArtistID:   ArtistIDFromSpotifyID(h, simpleTrack.Artists[0].ID.String()),
 	}
 }
 
@@ -26,4 +26,10 @@ func ArtistsFromTrack(simpleTrack *spotify.SimpleTrack) []*domain.Artist {
 		artistList = append(artistList, artistIn)
 	}
 	return artistList
+}
+
+func ArtistIDFromSpotifyID(h *SpotifyHandler, spotifyID string) int {
+	// 最初に そのアーティストが存在していなかったら 保存の処理をする
+	artist, _ := h.SpotifyRepository.ReadArtistBySocialID(spotifyID)
+	return artist.ID
 }

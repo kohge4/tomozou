@@ -29,11 +29,29 @@ type UserTrackTag struct {
 
 	UserID       int       `gorm:"column:user_id;not null" json:"user_id"`
 	TrackID      int       `gorm:"column:user_id;not null" json:"track_id"`
+	ArtistID     int       `gorm:"column:artist_id;not null" json:"artist_id"`
 	TagName      string    `gorm:"column:tag_name;not null" json:"tag_name"`
 	CreatedAt    time.Time `gorm:"column:created_at" json:"created_at"`
 	TrackComment string    `gorm:"column:comment" json:"comment"`
 
 	ArtistName string `gorm:"column:artist_name" json:"artist_name"`
 	TrackName  string `gorm:"column:track_name" json:"track_name"`
-	URL        string `gorm:"column:url" json:"url"`
+	TrackURL   string `gorm:"column:track_url" json:"track_url"`
+}
+
+func NewUserTrackTag(track *Track, userID int) *UserTrackTag {
+	return &UserTrackTag{
+		UserID:     userID,
+		TrackID:    track.ID,
+		ArtistID:   track.ArtistID,
+		TagName:    "nowplaying",
+		ArtistName: track.ArtistName,
+		TrackName:  track.Name,
+		TrackURL:   track.TrackURL,
+	}
+}
+
+// 戻り値多分なくていい => このあと save で 更新方針
+func (tag *UserTrackTag) AddTrackCommet(comment string) {
+	tag.TrackComment = comment
 }
