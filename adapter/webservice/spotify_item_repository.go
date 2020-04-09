@@ -182,18 +182,19 @@ func (h *SpotifyHandler) saveTopTracks(userID int) error {
 			ArtistName: artistIn.Name,
 			ArtistID:   artistIn.ID,
 		}
-		_, err := h.SpotifyRepository.SaveTrack(*trackIn)
+		trackIn.ID, err = h.SpotifyRepository.SaveTrack(*trackIn)
 		if err != nil {
 			return err
 		}
-		// 複数の arthist が 携わるトラックの場合の処理
-		// corrywong の cosmic sans を 聞いて nowplaying の処理とともに 確認
+
+		userTrackTag := domain.NewUserTrackTag(trackIn, userID)
+		h.SpotifyRepository.SaveUserTrackTag(*userTrackTag)
+		// 複数の arthist が 携わるトラックについてちゃんとやった方がいいかも
 	}
-	// UserTrack Tag の 保存も必要 そのための userID
 	return nil
 }
 
-func (h *SpotifyHandler) saveNowPlayingTrack() error {
+func (h *SpotifyHandler) saveNowPlayingTrack(userID int) error {
 	var track *spotify.SimpleTrack
 
 	var artistIn *domain.Artist
@@ -236,8 +237,12 @@ func (h *SpotifyHandler) saveNowPlayingTrack() error {
 	}
 	// Track 保存に関する処理
 	// SimpleTrack を変換 => artist を保存 => tagとして track に持たせる
-	h.SpotifyRepository.SaveTrack(*trackIn)
-	// この後に Tag の 保存も必要  そのための userID
+	trackIn.ID, err = h.SpotifyRepository.SaveTrack(*trackIn)
+	if err != nil {
+		return err
+	}
+	userTrackTag := domain.NewUserTrackTag(trackIn, userID)
+	h.SpotifyRepository.SaveUserTrackTag(*userTrackTag)
 	return nil
 }
 

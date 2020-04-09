@@ -7,6 +7,7 @@ type ItemRepository interface {
 	SaveArtist(Artist) (int, error)
 	SaveTrack(Track) (int, error)
 	SaveUserArtistTag(UserArtistTag) error
+	SaveUserTrackTag(UserTrackTag) error
 
 	ReadTagByUser(userID int) (interface{}, error)
 	ReadUserArtistTagByUserID(userID int) (interface{}, error)

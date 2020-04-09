@@ -75,6 +75,11 @@ func main() {
 			devUserRepo.DB.Find(&track)
 			c.JSON(200, track)
 		})
+		rDev.GET("/tracktag", func(c *gin.Context) {
+			track := []domain.UserTrackTag{}
+			devUserRepo.DB.Find(&track)
+			c.JSON(200, track)
+		})
 		rDev.GET("/userdata", func(c *gin.Context) {
 		})
 		rDev.GET("/debug", userProfileAppImpl.Debug)

@@ -24,11 +24,9 @@ func GormConn() (*gorm.DB, error) {
 	if !db.HasTable(&domain.Track{}) {
 		db.CreateTable(&domain.Track{})
 	}
-	/*
-		if !db.HasTable(&domain.UserTrackTag{}) {
-			db.CreateTable(&domain.UserTrackTag{})
-		}
-	*/
+	if !db.HasTable(&domain.UserTrackTag{}) {
+		db.CreateTable(&domain.UserTrackTag{})
+	}
 	if !db.HasTable(&domain.UserChat{}) {
 		db.CreateTable(&domain.UserChat{})
 	}

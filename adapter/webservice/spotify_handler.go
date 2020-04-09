@@ -88,7 +88,7 @@ func (h *SpotifyHandler) SaveUserItem(userID int) error {
 	h.saveRecentlyFavoriteArtists(userID)
 	//h.saveRecentlyPlayedTracks(userID)
 	h.saveTopTracks(userID)
-	h.saveNowPlayingTrack()
+	h.saveNowPlayingTrack(userID)
 	return nil
 }
 
@@ -102,7 +102,7 @@ func (h *SpotifyHandler) UpdateUserItem(userID int) error {
 	h.saveRecentlyFavoriteArtists(userID)
 
 	h.saveTopTracks(userID)
-	h.saveNowPlayingTrack()
+	h.saveNowPlayingTrack(userID)
 	return nil
 }
 
