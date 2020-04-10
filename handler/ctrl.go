@@ -140,5 +140,26 @@ func (u *UserProfileApplicationImpl) SearchUsersByArtistName(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) MyTrack(c *gin.Context) {
+	userID, err := getIDFromContext(c)
+	if err != nil {
+		c.String(403, err.Error())
+	}
+	tags, err := u.UseCase.MyUserTrackTag(userID)
+	if err != nil {
+		c.String(403, err.Error())
+	}
+	c.JSON(200, tags)
+}
+
+func (u *UserProfileApplicationImpl) NowPlaying(c *gin.Context) {
+	userID, err := getIDFromContext(c)
+	if err != nil {
+		c.String(403, err.Error())
+	}
+	// Handler から直接取ってくる方がいいかも
+	err = u.UseCase.FetchNowPlayng(userID)
+	if err != nil {
+		c.JSON(403, err.Error())
+	}
 
 }

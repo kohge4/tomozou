@@ -106,6 +106,16 @@ func (h *SpotifyHandler) UpdateUserItem(userID int) error {
 	return nil
 }
 
+// このopt は domain から 型を用いた方がいい可能性あり
+func (h *SpotifyHandler) UpdateUserItemOpt(userID int, opt string) error {
+	switch opt {
+	case "nowplaying":
+		h.saveNowPlayingTrack(userID)
+	default:
+	}
+	return nil
+}
+
 func (h *SpotifyHandler) DebugItem(userID int) interface{} {
 	/*
 		//h.saveTopTracks(userID)

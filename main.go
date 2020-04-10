@@ -13,8 +13,10 @@ import (
 )
 
 func main() {
+	DRIVER := "sqlite3"
+	DSN := "test.db"
 
-	gormConn, _ := datastore.GormConn()
+	gormConn, _ := datastore.GormConn(DRIVER, DSN)
 	userRepo := datastore.NewUserDBRepository(gormConn)
 	itemRepo := datastore.NewSpotifyItemDBRepository(gormConn)
 
@@ -55,6 +57,10 @@ func main() {
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
 		auth.GET("/profile", userProfileAppImpl.MyProfile)
+		// mytrack 表示
+		auth.GET("/track", userProfileAppImpl.MyTrack)
+		// nowplayingは track のみ連携する処理
+		auth.GET("/nowplaying", userProfileAppImpl.NowPlaying)
 	}
 
 	// 開発用: データ確認エンドポイント
@@ -80,6 +86,7 @@ func main() {
 			devUserRepo.DB.Find(&track)
 			c.JSON(200, track)
 		})
+		rDev.GET("/mytrack", userProfileAppImpl.MyTrack)
 		rDev.GET("/userdata", func(c *gin.Context) {
 		})
 		rDev.GET("/debug", userProfileAppImpl.Debug)

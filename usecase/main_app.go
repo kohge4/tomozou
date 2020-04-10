@@ -91,6 +91,28 @@ func (u UserProfileApplication) MyUserArtistTag(id int) (interface{}, error) {
 	return tags, nil
 }
 
+func (u UserProfileApplication) MyUserTrackTag(id int) (interface{}, error) {
+	tags, err := u.ItemRepository.ReadUserTrackTagByUserID(id)
+	if err != nil {
+		return nil, err
+	}
+	return tags, nil
+}
+
+func (u *UserProfileApplication) FetchNowPlayng(id int) error {
+	_, err := u.UserRepository.Update(id)
+	if err != nil {
+		// 最終更新日みたいなのを登録できるようにしたい
+		return err
+	}
+	// この options は domain に 厳密に型を用意してやった方がいいかも
+	err = u.WebServiceAccount.UpdateUserItemOpt(id, "nowplaying")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // UserID から その UserIDの もつ artistID を　全部 検索する
 func (u UserProfileApplication) DisplayUsersByArtistID(artistID int) (interface{}, error) {
 	var users []domain.User

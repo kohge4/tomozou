@@ -7,8 +7,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func GormConn() (*gorm.DB, error) {
-	db, err := gorm.Open("sqlite3", "test.db")
+func GormConn(driver string, dsn string) (*gorm.DB, error) {
+	db, err := gorm.Open(driver, dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -24,6 +24,7 @@ func GormConn() (*gorm.DB, error) {
 	if !db.HasTable(&domain.Track{}) {
 		db.CreateTable(&domain.Track{})
 	}
+
 	if !db.HasTable(&domain.UserTrackTag{}) {
 		db.CreateTable(&domain.UserTrackTag{})
 	}

@@ -10,4 +10,5 @@ type WebServiceAccount interface {
 
 	// 再連携時の Item 周りの処理
 	UpdateUserItem(userID int) error
+	UpdateUserItemOpt(userID int, opt string) error
 }
