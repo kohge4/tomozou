@@ -17,10 +17,25 @@ type MyProfileResponse struct {
 }
 
 type MyTrackResponse struct {
+	UserID       int
+	TrackID      int
+	TrackURL     string
+	TrackName    string
+	TrackComment string
+	ArtistID     int
+	Artistname   string
 }
 
 func NewMyTrackResponse(track *domain.UserTrackTag) *MyTrackResponse {
-	return &MyTrackResponse{}
+	return &MyTrackResponse{
+		TrackURL:     newTrackURL(track.TrackSocialID),
+		TrackName:    track.TrackName,
+		TrackComment: track.TrackComment,
+	}
+}
+
+func newTrackURL(id string) string {
+	return ""
 }
 
 type ChatResponse struct {
