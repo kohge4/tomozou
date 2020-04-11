@@ -2,6 +2,7 @@ package handler
 
 import (
 	"time"
+	"tomozou/domain"
 )
 
 type Response struct {
@@ -12,8 +13,14 @@ type Response struct {
 type MyProfileResponse struct {
 	Me      interface{} `json:"me"`
 	Artists interface{} `json:"artists"`
-	//TopArtists      interface{} `json:"top_artists"`
-	//FavoriteArtists interface{} `json:"favorite_artists"`
+	Tracks  interface{} `json:"tracks"`
+}
+
+type MyTrackResponse struct {
+}
+
+func NewMyTrackResponse(track *domain.UserTrackTag) *MyTrackResponse {
+	return &MyTrackResponse{}
 }
 
 type ChatResponse struct {

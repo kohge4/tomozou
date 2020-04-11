@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"tomozou/domain"
 )
 
@@ -92,25 +93,43 @@ func (u UserProfileApplication) MyUserArtistTag(id int) (interface{}, error) {
 }
 
 func (u UserProfileApplication) MyUserTrackTag(id int) (interface{}, error) {
-	tags, err := u.ItemRepository.ReadUserTrackTagByUserID(id)
+	// nowplaying を表示する用
+	trackTag, err := u.ItemRepository.ReadUserTrackTagByUserID(id)
 	if err != nil {
 		return nil, err
 	}
-	return tags, nil
+	return trackTag, nil
 }
 
-func (u *UserProfileApplication) FetchNowPlayng(id int) error {
+func (u UserProfileApplication) MyNowPlayingUserTrackTag(id int) (*domain.UserTrackTag, error) {
+	// nowplaying を表示する用
+	trackTags, err := u.ItemRepository.ReadUserTrackTagByUserID(id)
+	if err != nil {
+		return nil, err
+	}
+	if len(trackTags) == 0 {
+		return nil, fmt.Errorf("nil error")
+	}
+	return &trackTags[len(trackTags)-1], nil
+}
+
+func (u *UserProfileApplication) FetchNowPlayng(id int) (interface{}, error) {
+	// nowplayng を　外部から読み取った上で表示
 	_, err := u.UserRepository.Update(id)
 	if err != nil {
 		// 最終更新日みたいなのを登録できるようにしたい
-		return err
+		return nil, err
 	}
 	// この options は domain に 厳密に型を用意してやった方がいいかも
 	err = u.WebServiceAccount.UpdateUserItemOpt(id, "nowplaying")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	trackTag, err := u.ItemRepository.ReadUserTrackTagByUserID(id)
+	if err != nil {
+		return nil, err
+	}
+	return trackTag, nil
 }
 
 // UserID から その UserIDの もつ artistID を　全部 検索する

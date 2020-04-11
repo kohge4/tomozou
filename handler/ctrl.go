@@ -75,18 +75,24 @@ func (u *UserProfileApplicationImpl) MyProfile(c *gin.Context) {
 	if err != nil {
 		c.String(403, err.Error())
 	}
-	me, err := u.UseCase.Me(int(userID))
+	me, err := u.UseCase.Me(userID)
 	if err != nil {
 		c.String(403, err.Error())
 	}
-	tag, err := u.UseCase.MyUserArtistTag(int(userID))
+	tag, err := u.UseCase.MyUserArtistTag(userID)
 	if err != nil {
 		return
 	}
+	tracks, err := u.UseCase.MyNowPlayingUserTrackTag(userID)
+	if err != nil {
+		return
+	}
+	// userTrackTag 型の trackID  を用いて trackurlを作成する処理
 
 	response := MyProfileResponse{
 		Me:      me,
 		Artists: tag,
+		Tracks:  tracks,
 	}
 	c.JSON(200, response)
 }
@@ -140,9 +146,13 @@ func (u *UserProfileApplicationImpl) SearchUsersByArtistName(c *gin.Context) {
 }
 
 func (u *UserProfileApplicationImpl) MyTrack(c *gin.Context) {
+	// nowplaying の表示用
 	userID, err := getIDFromContext(c)
 	if err != nil {
 		c.String(403, err.Error())
+	}
+	if userID == 0 {
+		userID = 1
 	}
 	tags, err := u.UseCase.MyUserTrackTag(userID)
 	if err != nil {
@@ -156,10 +166,11 @@ func (u *UserProfileApplicationImpl) NowPlaying(c *gin.Context) {
 	if err != nil {
 		c.String(403, err.Error())
 	}
-	// Handler から直接取ってくる方がいいかも
-	err = u.UseCase.FetchNowPlayng(userID)
+	// Handler から直接取ってくる方がいいかも => streaming
+	trackTag, err := u.UseCase.FetchNowPlayng(userID)
 	if err != nil {
 		c.JSON(403, err.Error())
 	}
+	c.JSON(200, trackTag)
 
 }
